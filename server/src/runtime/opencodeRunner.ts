@@ -52,7 +52,7 @@ export function runOpencode(input: RunOpencodeInput): Promise<RunOpencodeResult>
   let settled = false;
   let sessionIdFound = false;
 
-  return new Promise((resolve, reject) => {
+  const promise = new Promise<RunOpencodeResult>((resolve, reject) => {
     child.stdout?.on('data', (chunk: Buffer) => {
       const text = chunk.toString('utf8');
       stdout += text;
@@ -78,6 +78,8 @@ export function runOpencode(input: RunOpencodeInput): Promise<RunOpencodeResult>
       resolve({ exitCode, stdout, stderr, timedOut: false });
     });
   });
+
+  return { promise, kill: () => { child.kill(); } };
 }
 
 export function buildGenCptPrompt(params: {

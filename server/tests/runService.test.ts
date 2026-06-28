@@ -19,7 +19,7 @@ type RunnerFn = (input: {
   onStdout?: (chunk: string) => void;
   onStderr?: (chunk: string) => void;
   onSessionId?: (sessionId: string) => void;
-}) => Promise<RunOpencodeResult>;
+}) => { promise: Promise<RunOpencodeResult>; kill: () => void };
 
 describe('run service', () => {
   let db: Database.Database;
@@ -87,12 +87,14 @@ describe('run service', () => {
     const fakeSessionDir = join(tmpSessionRoot, 'gencpt-real-001');
 
     // Runner simulates GenCPT creating its session dir DURING execution
-    const successRunner: RunnerFn = async (input) => {
-      input.onStdout?.('phase 1a complete\n');
-      input.onStdout?.('phase 8c complete\n');
-      // Simulate GenCPT writing its session directory after the before snapshot
-      makeFakeSessionDirAt(fakeSessionDir);
-      return { exitCode: 0, stdout: 'ok', stderr: '', timedOut: false };
+    const successRunner: RunnerFn = (input) => {
+      const promise = (async () => {
+        input.onStdout?.('phase 1a complete\n');
+        input.onStdout?.('phase 8c complete\n');
+        makeFakeSessionDirAt(fakeSessionDir);
+        return { exitCode: 0, stdout: 'ok', stderr: '', timedOut: false } as RunOpencodeResult;
+      })();
+      return { promise, kill: () => {} };
     };
 
     const { sessionId } = startGenCptAssessment(db, {
@@ -139,9 +141,12 @@ describe('run service', () => {
   });
 
   it('marks failed on non-zero exit', async () => {
-    const failingRunner: RunnerFn = async (input) => {
-      input.onStderr?.('SSH connection failed\n');
-      return { exitCode: 1, stdout: '', stderr: 'SSH connection failed', timedOut: false };
+    const failingRunner: RunnerFn = (input) => {
+      const promise = (async () => {
+        input.onStderr?.('SSH connection failed\n');
+        return { exitCode: 1, stdout: '', stderr: 'SSH connection failed', timedOut: false } as RunOpencodeResult;
+      })();
+      return { promise, kill: () => {} };
     };
 
     const { sessionId } = startGenCptAssessment(db, {
@@ -181,12 +186,10 @@ describe('run service', () => {
   });
 
   it('marks failed on runner timeout', async () => {
-    const timeoutRunner: RunnerFn = async () => ({
-      exitCode: null,
-      stdout: '',
-      stderr: '',
-      timedOut: true
-    });
+    const timeoutRunner: RunnerFn = () => {
+      const promise = Promise.resolve({ exitCode: null, stdout: '', stderr: '', timedOut: true } as RunOpencodeResult);
+      return { promise, kill: () => {} };
+    };
 
     const { sessionId } = startGenCptAssessment(db, {
       server: 'srv',

@@ -24,7 +24,9 @@ export type RunGenCptInput = {
   artifactRoot: string;
 };
 
-export type RunnerFn = (input: RunOpencodeInput) => Promise<RunOpencodeResult>;
+export type RunnerFn = (input: RunOpencodeInput) => { promise: Promise<RunOpencodeResult>; kill: () => void };
+
+const runningProcesses = new Map<string, { kill: () => void }>();
 
 function listGenCptSessionDirs(root: string): string[] {
   if (!existsSync(root)) return [];
@@ -90,7 +92,7 @@ export async function executeGenCptAssessment(
   const before = new Set(listGenCptSessionDirs(input.sessionRoot));
 
   try {
-    const result = await runnerFn({
+    const runner = runnerFn({
       command: input.opencodeCommand,
       gencptPath: input.gencptPath,
       prompt,
@@ -112,6 +114,9 @@ export async function executeGenCptAssessment(
       onStderr: (chunk) =>
         appendEvent(db, { sessionId, eventType: 'opencode.stderr', payload: { chunk } })
     });
+
+    runningProcesses.set(sessionId, runner);
+    const result = await runner.promise;
 
     const newSessionDir = findNewSessionDir(before, input.sessionRoot);
 
@@ -145,6 +150,7 @@ export async function executeGenCptAssessment(
         discoveredSessionDir: newSessionDir
       }
     });
+    runningProcesses.delete(sessionId);
     return { status: 'failed' };
   } catch (error) {
     updateSessionStatus(db, sessionId, 'failed');
@@ -153,6 +159,17 @@ export async function executeGenCptAssessment(
       eventType: 'assessment.error',
       payload: { error: error instanceof Error ? error.message : String(error) }
     });
+    runningProcesses.delete(sessionId);
     return { status: 'failed' };
+  } finally {
+    runningProcesses.delete(sessionId);
   }
+}
+
+export function stopSession(sessionId: string): boolean {
+  const proc = runningProcesses.get(sessionId);
+  if (!proc) return false;
+  proc.kill();
+  runningProcesses.delete(sessionId);
+  return true;
 }

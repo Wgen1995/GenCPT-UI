@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { getJson } from '../api/client.js';
+import { getJson, postJson } from '../api/client.js';
 import type { SessionEvent } from '../api/sse.js';
 import PanelCard from '../components/common/PanelCard.vue';
 import StatusBadge from '../components/common/StatusBadge.vue';
@@ -217,6 +217,16 @@ function stopPolling(): void {
   live.value = false;
 }
 
+async function handleStop(): Promise<void> {
+  try {
+    await postJson(`/api/sessions/${sessionId.value}/stop`, {});
+    live.value = false;
+    if (sessionInfo.value) sessionInfo.value = { ...sessionInfo.value, status: 'failed' };
+  } catch {
+    /* ignore */
+  }
+}
+
 function goQuality(): void {
   router.push(`/sessions/${sessionId.value}/quality`);
 }
@@ -242,6 +252,7 @@ onBeforeUnmount(() => {
         <code class="muted-code">{{ sessionId }}</code>
         <StatusBadge v-if="sessionInfo" :state="(sessionInfo.status as any) ?? 'pending'" />
         <StatusBadge v-if="live" state="running" label="LIVE" />
+        <button v-if="sessionInfo?.status === 'running'" class="stop-btn" @click="handleStop">■ 停止</button>
       </div>
     </div>
 
@@ -385,4 +396,6 @@ onBeforeUnmount(() => {
 .ev-error .ev-type { color: var(--rd); }
 .ev-approval .ev-type { color: var(--am); }
 .ev-phase .ev-type { color: var(--ac); }
+.stop-btn { background: rgba(248,81,73,0.15); color: var(--rd); border-color: rgba(248,81,73,0.3); margin-left: 8px; }
+.stop-btn:hover { background: rgba(248,81,73,0.25); }
 </style>
