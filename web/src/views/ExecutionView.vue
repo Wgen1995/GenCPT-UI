@@ -17,6 +17,7 @@ interface SessionInfo {
   server: string | null;
   mode: string | null;
   scope: string | null;
+  gencptSessionId?: string | null;
 }
 
 const sessionInfo = ref<SessionInfo | null>(null);
@@ -41,16 +42,22 @@ let stopStream: (() => void) | null = null;
 
 const stdout = computed(() => {
   return events.value
-    .filter((e) => e.type === 'stdout' || e.type === 'log')
-    .map((e) => String((e.payload as Record<string, unknown>)?.line ?? ''))
-    .join('\n');
+    .filter((e) => e.type === 'opencode.stdout' || e.type === 'stdout' || e.eventType === 'opencode.stdout')
+    .map((e) => {
+      const p = e.payload as Record<string, unknown> | null;
+      return String(p?.chunk ?? p?.line ?? '');
+    })
+    .join('');
 });
 
 const stderr = computed(() => {
   return events.value
-    .filter((e) => e.type === 'stderr')
-    .map((e) => String((e.payload as Record<string, unknown>)?.line ?? ''))
-    .join('\n');
+    .filter((e) => e.type === 'opencode.stderr' || e.type === 'stderr' || e.eventType === 'opencode.stderr')
+    .map((e) => {
+      const p = e.payload as Record<string, unknown> | null;
+      return String(p?.chunk ?? p?.line ?? '');
+    })
+    .join('');
 });
 
 function parseFailureFromEvent(payload: Record<string, unknown>): FailureDetail | null {
@@ -88,7 +95,7 @@ async function loadSession(): Promise<void> {
     if (s.status === 'failed') {
       try {
         const evs = await getJson<SessionEvent[]>(`/api/sessions/${sessionId.value}/events`);
-        const fail = evs.find((e) => e.type === 'assessment.failed' || e.type === 'assessment.error');
+        const fail = evs.find((e) => e.type === 'assessment.failed' || e.type === 'assessment.error' || e.eventType === 'assessment.failed' || e.eventType === 'assessment.error');
         if (fail) {
           failureDetail.value = parseFailureFromEvent((fail.payload as Record<string, unknown>) ?? {});
         }
@@ -116,18 +123,18 @@ function startStream(): void {
       events.value.push(e);
       if (events.value.length > 5000) events.value.splice(0, events.value.length - 5000);
 
-      if (e.type === 'stderr') stderrCount.value++;
-      if (e.type === 'approval' || e.type === 'approval_request') approvalCount.value++;
-      if (e.type === 'error' || e.type === 'fail') errorCount.value++;
+      if (e.type === 'opencode.stderr' || e.type === 'stderr') stderrCount.value++;
+      if (e.type === 'approval.requested' || e.type === 'approval_request') approvalCount.value++;
+      if (e.type === 'assessment.error' || e.type === 'error') errorCount.value++;
       if (e.type === 'assessment.failed' || e.type === 'assessment.error') {
         const detail = parseFailureFromEvent((e.payload as Record<string, unknown>) ?? {});
         if (detail) failureDetail.value = detail;
         if (sessionInfo.value) sessionInfo.value = { ...sessionInfo.value, status: 'failed' };
       }
-      if (e.type === 'phase') {
+      if (e.type === 'phase.started' || e.type === 'phase.completed' || e.type === 'phase') {
         const p = (e.payload as Record<string, unknown>) ?? {};
         const name = String(p.phase ?? p.name ?? '');
-        const state = String(p.state ?? 'running');
+        const state = e.type === 'phase.completed' ? 'pass' : 'running';
         if (name) {
           phaseProgress.value = {
             ...phaseProgress.value,
@@ -169,8 +176,10 @@ onBeforeUnmount(() => {
     <div class="view-head">
       <h1>实时执行控制台</h1>
       <div class="row">
-        <span class="muted">session:</span>
-        <code>{{ sessionId }}</code>
+        <span class="muted">opencode session:</span>
+        <code>{{ sessionInfo?.gencptSessionId ?? '—' }}</code>
+        <span class="muted">workbench:</span>
+        <code class="muted-code">{{ sessionId }}</code>
         <StatusBadge v-if="sessionInfo" :state="(sessionInfo.status as any) ?? 'pending'" />
         <StatusBadge v-if="live" state="running" label="LIVE" />
       </div>
@@ -199,6 +208,7 @@ onBeforeUnmount(() => {
         <dt>server</dt><dd>{{ sessionInfo.server ?? '-' }}</dd>
         <dt>mode</dt><dd>{{ sessionInfo.mode ?? '-' }}</dd>
         <dt>scope</dt><dd>{{ sessionInfo.scope ?? '-' }}</dd>
+        <dt>opencode sid</dt><dd>{{ sessionInfo.gencptSessionId ?? '-' }}</dd>
       </dl>
     </PanelCard>
 
@@ -285,6 +295,7 @@ onBeforeUnmount(() => {
 .view-head .row { display: flex; align-items: center; gap: 8px; }
 .row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 .muted { color: var(--t3); }
+.muted-code { color: var(--t3); }
 .err { color: var(--rd); }
 .muted.approval { color: var(--am); }
 .muted.err { color: var(--rd); }

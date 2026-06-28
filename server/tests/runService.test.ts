@@ -12,9 +12,13 @@ type RunnerFn = (input: {
   command: string;
   gencptPath: string;
   prompt: string;
-  timeoutMs: number;
+  model?: string;
+  thinking?: boolean;
+  variant?: string;
+  agent?: string;
   onStdout?: (chunk: string) => void;
   onStderr?: (chunk: string) => void;
+  onSessionId?: (sessionId: string) => void;
 }) => Promise<RunOpencodeResult>;
 
 describe('run service', () => {
@@ -98,7 +102,6 @@ describe('run service', () => {
       approval: 'standard',
       gencptPath: tmpGencpt,
       opencodeCommand: 'echo',
-      timeoutMs: 5000,
       sessionRoot: tmpSessionRoot,
       artifactRoot: tmpArtifact
     });
@@ -112,7 +115,6 @@ describe('run service', () => {
         approval: 'standard',
         gencptPath: tmpGencpt,
         opencodeCommand: 'echo',
-        timeoutMs: 5000,
         sessionRoot: tmpSessionRoot,
         artifactRoot: tmpArtifact
       },
@@ -149,7 +151,6 @@ describe('run service', () => {
       approval: 'standard',
       gencptPath: tmpGencpt,
       opencodeCommand: 'echo',
-      timeoutMs: 5000,
       sessionRoot: tmpSessionRoot,
       artifactRoot: tmpArtifact
     });
@@ -163,7 +164,6 @@ describe('run service', () => {
         approval: 'standard',
         gencptPath: tmpGencpt,
         opencodeCommand: 'echo',
-        timeoutMs: 5000,
         sessionRoot: tmpSessionRoot,
         artifactRoot: tmpArtifact
       },
@@ -195,7 +195,6 @@ describe('run service', () => {
       approval: 'express',
       gencptPath: tmpGencpt,
       opencodeCommand: 'echo',
-      timeoutMs: 1000,
       sessionRoot: tmpSessionRoot,
       artifactRoot: tmpArtifact
     });
@@ -209,7 +208,6 @@ describe('run service', () => {
         approval: 'express',
         gencptPath: tmpGencpt,
         opencodeCommand: 'echo',
-        timeoutMs: 1000,
         sessionRoot: tmpSessionRoot,
         artifactRoot: tmpArtifact
       },

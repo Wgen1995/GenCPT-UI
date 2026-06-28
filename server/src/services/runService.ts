@@ -1,7 +1,7 @@
 import { existsSync, readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import type Database from 'better-sqlite3';
-import { createSession, updateSessionStatus } from './sessionService.js';
+import { createSession, updateSessionStatus, updateSessionGenCptId } from './sessionService.js';
 import { appendEvent } from './eventService.js';
 import { importSession } from './importService.js';
 import { runOpencode, buildGenCptPrompt } from '../runtime/opencodeRunner.js';
@@ -14,10 +14,13 @@ export type RunGenCptInput = {
   approval: string;
   sourcePath?: string;
   baseline?: string;
+  model?: string;
+  thinking?: boolean;
+  variant?: string;
+  agent?: string;
   gencptPath: string;
   opencodeCommand: string;
-  timeoutMs: number;
-  sessionRoot: string; //通常 /tmp
+  sessionRoot: string; // 通常 /tmp
   artifactRoot: string;
 };
 
@@ -91,7 +94,19 @@ export async function executeGenCptAssessment(
       command: input.opencodeCommand,
       gencptPath: input.gencptPath,
       prompt,
-      timeoutMs: input.timeoutMs,
+      model: input.model,
+      thinking: input.thinking,
+      variant: input.variant,
+      agent: input.agent,
+      onSessionId: (gencptSessionId) => {
+        // Persist the opencode-issued session id next to our internal UUID.
+        updateSessionGenCptId(db, sessionId, gencptSessionId);
+        appendEvent(db, {
+          sessionId,
+          eventType: 'opencode.session.detected',
+          payload: { gencptSessionId }
+        });
+      },
       onStdout: (chunk) =>
         appendEvent(db, { sessionId, eventType: 'opencode.stdout', payload: { chunk } }),
       onStderr: (chunk) =>

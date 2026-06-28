@@ -36,7 +36,6 @@ export function createApp(appConfig: AppConfig): Hono {
     createRunRoute(db, {
       gencptPath: gencptHome,
       opencodeCommand: config.opencode.command,
-      timeoutMs: config.opencode.timeoutMs,
       sessionRoot: config.gencpt.sessionRoot,
       artifactRoot: config.storage.artifactDir
     })

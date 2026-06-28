@@ -119,3 +119,8 @@ export function updateSessionSummary(db: Database.Database, id: string, summary:
   const now = new Date().toISOString();
   db.prepare('UPDATE sessions SET summary_json = ?, updated_at = ? WHERE id = ?').run(JSON.stringify(summary), now, id);
 }
+
+export function updateSessionGenCptId(db: Database.Database, id: string, gencptSessionId: string): void {
+  const now = new Date().toISOString();
+  db.prepare('UPDATE sessions SET gencpt_session_id = ?, updated_at = ? WHERE id = ?').run(gencptSessionId, now, id);
+}

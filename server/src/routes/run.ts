@@ -9,13 +9,16 @@ const RunSchema = z.object({
   scope: z.array(z.string()),
   approval: z.enum(['standard', 'express', 'manual']),
   sourcePath: z.string().optional(),
-  baseline: z.string().optional()
+  baseline: z.string().optional(),
+  model: z.string().optional(),
+  thinking: z.boolean().optional(),
+  variant: z.string().optional(),
+  agent: z.string().optional()
 });
 
 export type RunRouteConfig = {
   gencptPath: string;
   opencodeCommand: string;
-  timeoutMs: number;
   sessionRoot: string;
   artifactRoot: string;
 };
@@ -43,9 +46,12 @@ export function createRunRoute(db: Database.Database, runConfig: RunRouteConfig)
       approval: parsed.data.approval,
       sourcePath: parsed.data.sourcePath,
       baseline: parsed.data.baseline,
+      model: parsed.data.model,
+      thinking: parsed.data.thinking,
+      variant: parsed.data.variant,
+      agent: parsed.data.agent,
       gencptPath: runConfig.gencptPath,
       opencodeCommand: runConfig.opencodeCommand,
-      timeoutMs: runConfig.timeoutMs,
       sessionRoot: runConfig.sessionRoot,
       artifactRoot: runConfig.artifactRoot
     };

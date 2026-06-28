@@ -21,8 +21,13 @@ const launchForm = reactive({
   scope: ['all'] as ScopeItem[],
   approval: 'standard' as Approval,
   sourcePath: '',
-  baseline: ''
+  baseline: '',
+  model: '',
+  thinking: false,
+  variant: '' as '' | 'high' | 'max' | 'minimal',
+  agent: ''
 });
+const showAdvanced = ref(false);
 const launching = ref(false);
 const launchErr = ref<string | null>(null);
 const launchSuccess = ref<string | null>(null);
@@ -32,6 +37,7 @@ const importing = ref(false);
 const importErr = ref<string | null>(null);
 
 const SCOPE_OPTIONS: ScopeItem[] = ['all', 'k8s', 'docker', 'containerd'];
+const VARIANT_OPTIONS = ['', 'high', 'max', 'minimal'] as const;
 
 function toggleScope(item: ScopeItem): void {
   const i = launchForm.scope.indexOf(item);
@@ -70,7 +76,11 @@ async function submitLaunch(): Promise<void> {
         : launchForm.scope,
       approval: launchForm.approval,
       ...(launchForm.sourcePath.trim() ? { sourcePath: launchForm.sourcePath.trim() } : {}),
-      ...(launchForm.baseline.trim() ? { baseline: launchForm.baseline.trim() } : {})
+      ...(launchForm.baseline.trim() ? { baseline: launchForm.baseline.trim() } : {}),
+      ...(launchForm.model.trim() ? { model: launchForm.model.trim() } : {}),
+      ...(launchForm.thinking ? { thinking: true } : {}),
+      ...(launchForm.variant ? { variant: launchForm.variant } : {}),
+      ...(launchForm.agent.trim() ? { agent: launchForm.agent.trim() } : {})
     };
     const res = await postJson<{ sessionId: string; status: string; streamUrl?: string }>(
       '/api/sessions/run',
@@ -190,6 +200,50 @@ async function submitImport(): Promise<void> {
           <input v-model="launchForm.baseline" placeholder="历史 baseline session id" :disabled="launching" />
         </label>
 
+        <div class="advanced">
+          <button type="button" class="advanced-toggle" @click="showAdvanced = !showAdvanced">
+            <span class="caret" :class="{ open: showAdvanced }">▸</span>
+            高级参数（model / thinking / variant / agent）
+          </button>
+          <div v-if="showAdvanced" class="advanced-body">
+            <label class="field">
+              <span class="lb">model（provider/model）</span>
+              <input
+                v-model="launchForm.model"
+                placeholder="例如 anthropic/claude-3.7-sonnet，留空用默认"
+                :disabled="launching"
+              />
+            </label>
+            <label class="field check">
+              <input type="checkbox" v-model="launchForm.thinking" :disabled="launching" />
+              <span>显示 thinking 思维块（--thinking）</span>
+            </label>
+            <div class="field">
+              <span class="lb">variant（推理强度）</span>
+              <div class="seg">
+                <button
+                  v-for="v in VARIANT_OPTIONS"
+                  :key="v"
+                  type="button"
+                  :class="{ active: launchForm.variant === v }"
+                  @click="launchForm.variant = v"
+                  :disabled="launching"
+                >
+                  {{ v === '' ? '默认' : v }}
+                </button>
+              </div>
+            </div>
+            <label class="field">
+              <span class="lb">agent</span>
+              <input
+                v-model="launchForm.agent"
+                placeholder="指定 opencode agent 名，留空用默认"
+                :disabled="launching"
+              />
+            </label>
+          </div>
+        </div>
+
         <p v-if="launchSuccess" style="color: var(--ac); font-weight: 600; padding: 12px; background: rgba(0,255,136,0.08); border-radius: 8px;">{{ launchSuccess }}</p>
 
         <p v-if="launchErr" class="err">{{ launchErr }}</p>
@@ -265,4 +319,23 @@ async function submitImport(): Promise<void> {
 .row { display: flex; gap: var(--gap); align-items: center; }
 .err { color: var(--rd); }
 .link { color: var(--cy); }
+.advanced { border-top: 1px dashed var(--bd); padding-top: 10px; margin-top: 4px; }
+.advanced-toggle {
+  background: transparent;
+  border: none;
+  padding: 4px 0;
+  font-size: 12px;
+  color: var(--t3);
+  text-align: left;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.advanced-toggle:hover { color: var(--t2); background: transparent; border-color: transparent; }
+.advanced-toggle .caret { display: inline-block; transition: transform 0.15s; }
+.advanced-toggle .caret.open { transform: rotate(90deg); }
+.advanced-body { display: flex; flex-direction: column; gap: 12px; padding-top: 8px; }
+.field.check { flex-direction: row; align-items: center; gap: 8px; }
+.field.check input[type="checkbox"] { width: auto; }
+.field.check span { font-size: 12px; color: var(--t2); }
 </style>
