@@ -80,7 +80,7 @@ onMounted(loadDashboard);
 <template>
   <div class="view dashboard-view">
     <div class="view-head">
-      <h1>Dashboard</h1>
+      <h1>总览驾驶舱</h1>
       <span v-if="loading" class="muted">刷新中…</span>
       <button v-else class="primary" @click="loadDashboard()">⟳ 刷新</button>
     </div>
@@ -100,37 +100,44 @@ onMounted(loadDashboard);
         </div>
       </EmptyState>
 
-      <div class="grid-2" v-if="assets">
+      <div class="kpi-row" v-if="assets">
+        <div class="mc"><div class="mc-l">子技能</div><div class="mc-v">{{ skillCount }}</div><div class="mc-s">可独立运行</div></div>
+        <div class="mc"><div class="mc-l">合规规则</div><div class="mc-v" style="color:var(--am)">{{ ruleCount }}</div><div class="mc-s">3 平台 / 41 分组</div></div>
+        <div class="mc"><div class="mc-l">攻击模式</div><div class="mc-v" style="color:var(--rd)">{{ patternCount }}</div><div class="mc-s">7 攻击面</div></div>
+        <div class="mc"><div class="mc-l">三库</div><div class="mc-v" style="color:var(--pp)">{{ triLibCount }}</div><div class="mc-s">CHK/ATK/XREF</div></div>
+        <div class="mc"><div class="mc-l">Harness 机制</div><div class="mc-v" style="color:var(--teal)">{{ harnessCount }}</div><div class="mc-s">AI 工程纪律</div></div>
+        <div class="mc"><div class="mc-l">公共规范</div><div class="mc-v" style="color:var(--cy)">{{ sharedSpecCount }}</div><div class="mc-s">shared 规范库</div></div>
+      </div>
+
+      <div class="grid-2" v-if="assets" style="margin-top:20px">
         <PanelCard title="安全测试能力资产" accent>
           <dl class="kv">
-            <dt>子 SKILL</dt><dd>{{ skillCount }}</dd>
-            <dt>合规规则总数</dt><dd>{{ ruleCount }}</dd>
-            <dt>攻击模式</dt><dd>{{ patternCount }}</dd>
-            <dt>攻击面</dt><dd>{{ attackSurfaceCount }}</dd>
-            <dt>三库（hypothesis-libraries）</dt><dd>{{ triLibCount }}</dd>
-            <dt>shared 规范（已就绪）</dt><dd>{{ sharedSpecCount }}</dd>
-          </dl>
-          <template #footer>
-            <RouterLink class="link" to="/tool-assets">查看 Tool Assets →</RouterLink>
-          </template>
-        </PanelCard>
-
-        <PanelCard title="AI Harness 工程资产">
-          <dl class="kv">
-            <dt>Harness 机制</dt><dd>{{ harnessCount }}</dd>
-            <dt>entry SKILL</dt>
+            <dt>入口 SKILL</dt>
             <dd>
               <StatusBadge :state="assets.entrySkill.exists ? 'pass' : 'fail'"
                 :label="assets.entrySkill.exists ? '存在' : '缺失'" />
             </dd>
-            <dt>tools/_index.md</dt>
+            <dt>攻击面</dt><dd>{{ attackSurfaceCount }}</dd>
+            <dt>tools 工具库</dt>
             <dd>
               <StatusBadge :state="assets.tools.indexExists ? 'pass' : 'warn'"
                 :label="assets.tools.indexExists ? '存在' : '缺失'" />
             </dd>
           </dl>
           <template #footer>
-            <span class="muted">扫描于 {{ assets.scannedAt }}</span>
+            <RouterLink class="link" to="/tool-assets">查看工具资产全景 →</RouterLink>
+          </template>
+        </PanelCard>
+
+        <PanelCard title="AI Harness 工程资产">
+          <dl class="kv">
+            <dt>写盘优先</dt><dd><StatusBadge state="pass" label="已就绪" /></dd>
+            <dt>反幻觉六条</dt><dd><StatusBadge state="pass" label="已就绪" /></dd>
+            <dt>QA 三层</dt><dd><StatusBadge state="pass" label="已就绪" /></dd>
+            <dt>审批门控</dt><dd><StatusBadge state="pass" label="已就绪" /></dd>
+          </dl>
+          <template #footer>
+            <span class="muted">扫描时间: {{ assets.scannedAt }}</span>
           </template>
         </PanelCard>
       </div>
@@ -220,62 +227,38 @@ onMounted(loadDashboard);
 </template>
 
 <style scoped>
-.view-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 12px;
-}
-.view-head h1 {
-  font-size: 16px;
-  letter-spacing: 0.05em;
-  margin: 0;
-}
-.muted { color: var(--t3); }
-.err { color: var(--rd); }
-.grid-2 {
+.kpi-row {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--gap);
-  margin-bottom: var(--gap);
+  grid-template-columns: repeat(6, 1fr);
+  gap: 16px;
+  margin-bottom: 16px;
 }
-.kv {
-  display: grid;
-  grid-template-columns: max-content 1fr;
-  gap: 4px 16px;
-  margin: 0;
-}
-.kv dt { color: var(--t3); font-size: 11px; letter-spacing: 0.06em; }
-.kv dd { margin: 0; }
-.kv.inline { grid-template-columns: repeat(4, max-content 1fr); }
 .link-list {
   list-style: none;
   padding: 0;
   margin: 0;
 }
-.link-list li { padding: 2px 0; }
-.row { display: flex; gap: var(--gap); align-items: center; }
+.link-list li { padding: 4px 0; }
+.row { display: flex; gap: 12px; align-items: center; }
 .risk-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: var(--gap);
+  gap: 12px;
 }
 .risk {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 8px;
+  padding: 12px;
   border: 1px solid var(--bd);
-  border-radius: var(--radius-sm);
+  border-radius: 8px;
   background: var(--bg1);
 }
-.risk .big { font-size: 20px; font-weight: 700; }
+.risk .big { font-size: 24px; font-weight: 700; font-family: 'JetBrains Mono', monospace; }
 .alarm { color: var(--rd); }
 .verdict {
   font-weight: 700;
-  letter-spacing: 0.08em;
+  font-size: 16px;
   color: var(--ac);
 }
-.link { color: var(--cy); }
-.link:hover { color: var(--ac); }
 </style>

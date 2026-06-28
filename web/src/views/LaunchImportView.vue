@@ -2,10 +2,12 @@
 import { reactive, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { postJson } from '../api/client.js';
+import { useUiStore } from '../stores/ui.js';
 import PanelCard from '../components/common/PanelCard.vue';
 import StatusBadge from '../components/common/StatusBadge.vue';
 
 const router = useRouter();
+const ui = useUiStore();
 
 type Mode = 'fast' | 'full' | 'custom';
 type Approval = 'standard' | 'express' | 'manual';
@@ -23,6 +25,7 @@ const launchForm = reactive({
 });
 const launching = ref(false);
 const launchErr = ref<string | null>(null);
+const launchSuccess = ref<string | null>(null);
 
 const importForm = reactive({ sessionDir: '' });
 const importing = ref(false);
@@ -57,6 +60,7 @@ async function submitLaunch(): Promise<void> {
   }
   launching.value = true;
   launchErr.value = null;
+  launchSuccess.value = null;
   try {
     const body = {
       server: launchForm.server.trim(),
@@ -68,11 +72,15 @@ async function submitLaunch(): Promise<void> {
       ...(launchForm.sourcePath.trim() ? { sourcePath: launchForm.sourcePath.trim() } : {}),
       ...(launchForm.baseline.trim() ? { baseline: launchForm.baseline.trim() } : {})
     };
-    const res = await postJson<{ sessionId: string }>(
+    const res = await postJson<{ sessionId: string; status: string; streamUrl?: string }>(
       '/api/sessions/run',
       body
     );
-    router.push(`/sessions/${res.sessionId}/execution`);
+    launchSuccess.value = `评估已启动！Session: ${res.sessionId}，正在跳转到执行控制台...`;
+    ui.setCurrentSession(res.sessionId);
+    setTimeout(() => {
+      router.push(`/sessions/${res.sessionId}/execution`);
+    }, 800);
   } catch (e) {
     launchErr.value = (e as Error).message;
   } finally {
@@ -181,6 +189,8 @@ async function submitImport(): Promise<void> {
           <span class="lb">baseline（可选）</span>
           <input v-model="launchForm.baseline" placeholder="历史 baseline session id" :disabled="launching" />
         </label>
+
+        <p v-if="launchSuccess" style="color: var(--ac); font-weight: 600; padding: 12px; background: rgba(0,255,136,0.08); border-radius: 8px;">{{ launchSuccess }}</p>
 
         <p v-if="launchErr" class="err">{{ launchErr }}</p>
 
