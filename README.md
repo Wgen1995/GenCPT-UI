@@ -14,6 +14,8 @@ GenCPT skill（已安装到 opencode skills 目录）
 ssh-manager MCP（opencode 配置 ssh 服务器连接）
 ```
 
+**不需要编译工具**。better-sqlite3 对 Linux/macOS/Windows x64 提供预编译二进制。如遇到编译报错，需安装 build-essential 和 python3（仅 ARM 或小众平台需要）。
+
 GenCPT 仓库地址：https://github.com/Wgen1995/GenCPT  
 将 genct 目录安装到 `~/.config/opencode/skills/gencpt/`
 
