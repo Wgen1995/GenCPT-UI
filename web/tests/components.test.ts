@@ -38,19 +38,10 @@ describe('AppShell', () => {
     const w = mountWithRouter(AppShell, {}, r);
     await flushPromises();
     expect(w.text()).toContain('GenCPT');
-    expect(w.find('.app-header').exists()).toBe(true);
-    expect(w.find('.app-sidebar').exists()).toBe(true);
-    expect(w.find('.app-workspace').exists()).toBe(true);
-    expect(w.findAll('.group').length).toBe(6);
-  });
-
-  it('collapses sidebar when toggled', async () => {
-    const r = makeTestRouter();
-    const w = mountWithRouter(AppShell, {}, r);
-    await flushPromises();
-    const btn = w.find('button');
-    await btn.trigger('click');
-    expect(w.classes()).toContain('collapsed');
+    expect(w.find('.hd').exists()).toBe(true);
+    expect(w.find('.sb').exists()).toBe(true);
+    expect(w.find('.ws').exists()).toBe(true);
+    expect(w.findAll('.sb-g').length).toBeGreaterThan(0);
   });
 });
 

@@ -12,6 +12,7 @@ const route = useRoute();
 interface NavItem {
   to: string;
   label: string;
+  icon: string;
   needsSession?: boolean;
 }
 interface NavGroup {
@@ -20,56 +21,44 @@ interface NavGroup {
 }
 
 const groups: NavGroup[] = [
-  { label: '总览', items: [{ to: '/dashboard', label: '总览驾驶舱' }] },
-  { label: '运行', items: [{ to: '/launch', label: '启动 / 导入' }] },
-  {
-    label: '质量与发现',
-    items: [
-      { to: 'quality', label: '质量门禁', needsSession: true },
-      { to: 'candidate-panorama', label: '攻击候选来源全景', needsSession: true }
-    ]
-  },
-  {
-    label: '分析',
-    items: [
-      { to: 'graph', label: '知识图谱', needsSession: true },
-      { to: 'compliance', label: '合规检测', needsSession: true },
-      { to: 'tri-library', label: '三库联动', needsSession: true },
-      { to: 'attacks', label: '攻击验证', needsSession: true },
-      { to: 'chains', label: '攻击链', needsSession: true },
-      { to: 'coverage', label: '覆盖矩阵', needsSession: true },
-      { to: 'poc', label: 'POC 复现', needsSession: true }
-    ]
-  },
-  {
-    label: '交付',
-    items: [
-      { to: 'reports', label: '报告追溯', needsSession: true },
-      { to: 'baseline', label: 'Baseline 对比', needsSession: true }
-    ]
-  },
-  {
-    label: '进化与设置',
-    items: [
-      { to: 'evolution', label: '进化控制台', needsSession: true },
-      { to: '/tool-assets', label: '工具资产全景' },
-      { to: '/settings', label: '环境设置' }
-    ]
-  }
+  { label: '概况', items: [
+    { to: '/dashboard', label: '总览驾驶舱', icon: '◎' },
+    { to: '/launch', label: '启动 / 导入', icon: '▶' },
+  ]},
+  { label: '检测发现', items: [
+    { to: 'quality', label: '质量门禁', icon: '✓', needsSession: true },
+    { to: 'candidate-panorama', label: '攻击候选来源全景', icon: '◈', needsSession: true },
+  ]},
+  { label: '威胁分析', items: [
+    { to: 'graph', label: '知识图谱', icon: '⬡', needsSession: true },
+    { to: 'compliance', label: '合规检测', icon: '☰', needsSession: true },
+    { to: 'tri-library', label: '三库联动', icon: '🔗', needsSession: true },
+    { to: 'attacks', label: '攻击验证', icon: '⚔', needsSession: true },
+    { to: 'chains', label: '攻击链', icon: '⛓', needsSession: true },
+    { to: 'coverage', label: '覆盖矩阵', icon: '▦', needsSession: true },
+    { to: 'poc', label: 'POC 复现', icon: '◆', needsSession: true },
+  ]},
+  { label: '交付', items: [
+    { to: 'reports', label: '报告追溯', icon: '▤', needsSession: true },
+    { to: 'baseline', label: 'Baseline 对比', icon: '↔', needsSession: true },
+  ]},
+  { label: '进化管理', items: [
+    { to: 'evolution', label: '进化控制台', icon: '⬢', needsSession: true },
+    { to: '/tool-assets', label: '工具资产全景', icon: '⬣' },
+    { to: '/settings', label: '环境设置', icon: '⚙' },
+  ]},
 ];
 
-const sessionName = computed(() => {
+const opencodeSessionId = computed(() => {
   const id = ui.currentSessionId ?? sessions.current?.id;
   if (!id) return null;
-  return sessions.current?.server ?? id;
+  return sessions.current?.gencptSessionId ?? id;
 });
 
 const currentSessionId = computed(() => {
   const m = route.path.match(/^\/sessions\/([^/]+)/);
   return m ? m[1] : ui.currentSessionId;
 });
-
-const currentPath = computed(() => route.path);
 
 function resolveTo(item: NavItem): string {
   if (item.needsSession) {
@@ -81,16 +70,14 @@ function resolveTo(item: NavItem): string {
 }
 
 function isDisabled(item: NavItem): boolean {
-  if (item.needsSession) {
-    return !currentSessionId.value;
-  }
+  if (item.needsSession) return !currentSessionId.value;
   return false;
 }
 
 function isActive(item: NavItem): boolean {
   const to = resolveTo(item);
   if (!to) return false;
-  return currentPath.value === to || currentPath.value.startsWith(to + '/');
+  return route.path === to || route.path.startsWith(to + '/');
 }
 
 function go(item: NavItem) {
@@ -99,48 +86,158 @@ function go(item: NavItem) {
 }
 
 function goBack() {
-  if (window.history.length > 1) {
-    router.back();
-  } else {
-    router.push('/dashboard');
-  }
+  if (window.history.length > 1) router.back();
+  else router.push('/dashboard');
 }
 
-const showBackButton = computed(() => {
-  return currentPath.value !== '/dashboard';
-});
+const showBackButton = computed(() => route.path !== '/dashboard');
 </script>
 
 <template>
-  <div class="app-shell" :class="{ collapsed: ui.sidebarCollapsed }">
-    <header class="app-header">
-      <button @click="ui.toggleSidebar()" aria-label="切换侧栏">
-        {{ ui.sidebarCollapsed ? '»' : '«' }}
-      </button>
-      <span class="brand" @click="router.push('/dashboard')">
-        <span class="accent">⬡ GenCPT</span> · Workbench
-      </span>
-      <button v-if="showBackButton" class="back-btn" @click="goBack">← 返回</button>
-      <span v-if="sessionName" class="session-pill">当前 Session: {{ sessionName }}</span>
-    </header>
-    <nav class="app-sidebar">
-      <div v-for="g in groups" :key="g.label" class="group">
-        <div class="group-label">{{ g.label }}</div>
-        <a
-          v-for="item in g.items"
-          :key="item.label"
-          class="link"
-          :class="{ 'router-link-active': isActive(item), disabled: isDisabled(item) }"
-          href="javascript:void(0)"
-          @click="go(item)"
-        >
-          {{ item.label }}
-          <span v-if="isDisabled(item)" class="tag-needs-session">需 Session</span>
-        </a>
+  <div class="shell">
+    <!-- Header -->
+    <header class="hd">
+      <div class="hd-l">
+        <button v-if="showBackButton" class="hd-back" @click="goBack">←</button>
+        <div class="hd-logo" @click="router.push('/dashboard')">
+          <span class="hd-logo-icon">⬡</span>
+          <span class="hd-logo-text">GenCPT</span>
+        </div>
       </div>
-    </nav>
-    <main class="app-workspace">
-      <RouterView />
-    </main>
+      <div class="hd-c">
+        <span v-if="opencodeSessionId" class="hd-sess">
+          <span class="dot-live"></span>
+          <span class="mono">{{ opencodeSessionId }}</span>
+        </span>
+      </div>
+      <div class="hd-r">
+        <span class="hd-status"><span class="dot-live"></span> runtime ready</span>
+      </div>
+    </header>
+
+    <div class="bd">
+      <!-- Sidebar -->
+      <aside class="sb">
+        <div v-for="g in groups" :key="g.label" class="sb-g">
+          <div class="sb-gl">{{ g.label }}</div>
+          <div
+            v-for="item in g.items"
+            :key="item.label"
+            class="sb-i"
+            :class="{ on: isActive(item), off: isDisabled(item) }"
+            @click="go(item)"
+          >
+            <span class="sb-ic">{{ item.icon }}</span>
+            <span class="sb-il">{{ item.label }}</span>
+            <span v-if="isDisabled(item)" class="sb-tag">需 Session</span>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Workspace -->
+      <main class="ws">
+        <RouterView />
+      </main>
+    </div>
   </div>
 </template>
+
+<style scoped>
+.shell { display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+
+/* Header */
+.hd {
+  height: 52px; min-height: 52px;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 24px; gap: 16px;
+  background: linear-gradient(180deg, #161B22, #0D1117);
+  border-bottom: 1px solid #2D333B;
+  box-shadow: 0 1px 0 rgba(0, 255, 136, 0.06);
+  z-index: 100;
+}
+.hd-l { display: flex; align-items: center; gap: 16px; }
+.hd-back {
+  background: none; border: none; font-size: 18px; color: #9DA7B3;
+  cursor: pointer; padding: 4px 8px; border-radius: 4px;
+}
+.hd-back:hover { color: #E6EDF3; background: #1C232C; }
+.hd-logo { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+.hd-logo-icon { font-size: 20px; color: #00FF88; text-shadow: 0 0 8px rgba(0, 255, 136, 0.4); }
+.hd-logo-text { font-size: 16px; font-weight: 700; color: #00FF88; letter-spacing: 0.05em; }
+.hd-c { flex: 1; display: flex; justify-content: center; }
+.hd-sess {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 4px 14px; border-radius: 999px;
+  background: #1C232C; border: 1px solid #2D333B;
+  font-size: 12px; color: #9DA7B3;
+}
+.hd-sess .mono { font-family: 'JetBrains Mono', monospace; font-size: 11px; }
+.hd-r { display: flex; align-items: center; gap: 8px; }
+.hd-status { display: flex; align-items: center; gap: 6px; font-size: 12px; color: #3FB950; }
+
+.dot-live {
+  width: 7px; height: 7px; border-radius: 50%; background: #00FF88;
+  animation: pulse 1.5s infinite;
+}
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.25; } }
+
+/* Body */
+.bd { display: flex; flex: 1; overflow: hidden; }
+
+/* Sidebar */
+.sb {
+  width: 232px; min-width: 232px;
+  background: #0D1117;
+  border-right: 1px solid #1E252D;
+  overflow-y: auto; overflow-x: hidden;
+  padding: 12px 0 24px;
+  position: relative;
+}
+.sb::after {
+  content: ''; position: absolute; right: 0; top: 0; bottom: 0; width: 1px;
+  background: linear-gradient(180deg, transparent, rgba(0, 255, 136, 0.08), transparent);
+  pointer-events: none;
+}
+.sb-g { margin-bottom: 16px; }
+.sb-gl {
+  padding: 10px 20px 6px;
+  font-size: 10px; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 1.5px; color: #4D5663;
+  border-bottom: 1px solid #161B22;
+  margin: 0 8px 4px; padding-bottom: 6px;
+}
+.sb-i {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 20px; margin: 1px 4px;
+  border-radius: 6px; cursor: pointer;
+  font-size: 13px; color: #9DA7B3;
+  border-left: 2px solid transparent;
+  transition: all 0.12s ease;
+  position: relative;
+}
+.sb-i:hover { background: #161B22; color: #E6EDF3; border-left-color: #3D4449; }
+.sb-i.on {
+  background: rgba(0, 255, 136, 0.06);
+  color: #00FF88; border-left-color: #00FF88;
+}
+.sb-i.off { opacity: 0.25; cursor: default; }
+.sb-ic { width: 18px; text-align: center; font-size: 13px; font-style: normal; opacity: 0.7; }
+.sb-il { flex: 1; }
+.sb-tag {
+  font-size: 9px; padding: 1px 6px; border-radius: 3px;
+  background: #2D333B; color: #6E7681;
+}
+
+/* Workspace */
+.ws {
+  flex: 1; overflow-y: auto;
+  background: #0D1117;
+  background-image:
+    linear-gradient(rgba(30, 45, 64, 0.15) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(30, 45, 64, 0.15) 1px, transparent 1px);
+  background-size: 40px 40px;
+  padding: 28px;
+}
+.ws > * { animation: fadeUp 0.25s ease; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+</style>
