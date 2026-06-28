@@ -42,24 +42,70 @@ let pollEvents: ReturnType<typeof setInterval> | null = null;
 const eventsLoaded = ref(0);
 let eventsAccumulated: SessionEvent[] = [];
 
+function formatJsonLine(chunk: string): string {
+  const trimmed = chunk.trim();
+  if (!trimmed.startsWith('{')) return chunk;
+  try {
+    const obj = JSON.parse(trimmed) as Record<string, unknown>;
+    switch (obj.type) {
+      case 'step_start': return '\n─────────────────────────────────';
+      case 'step_finish': return '─────────────────────────────────\n';
+      case 'text': {
+        const t = String((obj.part as Record<string,unknown>)?.text ?? '');
+        return t;
+      }
+      case 'tool_use': {
+        const p = obj.part as Record<string,unknown>;
+        const tool = String(p?.tool ?? 'tool');
+        const input = p?.state as Record<string,unknown> | undefined;
+        const cmd = input?.input as Record<string,unknown> | undefined;
+        if (tool === 'skill') return `▶ 加载 GenCPT skill`;
+        if (tool === 'Task') return `▶ 启动子代理`;
+        if (tool.startsWith('ssh')) {
+          const server = cmd?.server ?? '';
+          const command = cmd?.command ?? cmd?.cmd ?? '';
+          return `▶ SSH ${server}: ${command}`;
+        }
+        if (tool === 'question') return `? ${String(cmd?.questions ?? '')}`;
+        return `▶ ${tool}`;
+      }
+      case 'tool_result': {
+        const p = obj.part as Record<string,unknown>;
+        const tool = String(p?.tool ?? '');
+        const output = p?.state as Record<string,unknown> | undefined;
+        const ok = output?.status === 'completed' ? '✓' : '✗';
+        const summary = String(output?.output ?? '').slice(0, 120);
+        if (tool === 'ssh-manager_ssh_execute') return `  ${ok} ${summary}`;
+        return `  ${ok}`;
+      }
+      case 'reasoning': return '';  // 隐藏推理块
+      default: return '';
+    }
+  } catch { return chunk; }
+}
+
 const stdout = computed(() => {
   return events.value
     .filter((e) => e.type === 'opencode.stdout' || e.type === 'stdout' || e.eventType === 'opencode.stdout')
     .map((e) => {
-      const p = e.payload as Record<string, unknown> | null;
-      return String(p?.chunk ?? p?.line ?? '');
+      const raw = String((e.payload as Record<string,unknown> | null)?.chunk ?? '');
+      return formatJsonLine(raw);
     })
-    .join('');
+    .filter(Boolean)
+    .join('\n');
 });
 
 const stderr = computed(() => {
+  // 过滤掉 opencode 内部 INFO 日志，只保留真正的错误
   return events.value
     .filter((e) => e.type === 'opencode.stderr' || e.type === 'stderr' || e.eventType === 'opencode.stderr')
     .map((e) => {
-      const p = e.payload as Record<string, unknown> | null;
-      return String(p?.chunk ?? p?.line ?? '');
+      const raw = String((e.payload as Record<string,unknown> | null)?.chunk ?? '');
+      if (raw.includes('level=INFO')) return '';
+      return raw;
     })
-    .join('');
+    .filter(Boolean)
+    .join('\n');
 });
 
 function parseFailureFromEvent(payload: Record<string, unknown>): FailureDetail | null {
@@ -269,8 +315,8 @@ onBeforeUnmount(() => {
           <EmptyState
             v-if="!stdout && !stderr"
             icon="◈"
-            title="等待事件流…"
-            description="SSE 连接到 /events/stream 后将在此显示 stdout / stderr"
+            title="等待执行输出…"
+            description="正在连接并等待 opencode 执行内容"
           />
         </div>
       </PanelCard>
@@ -296,9 +342,9 @@ onBeforeUnmount(() => {
     <!-- 底：事件 -->
     <PanelCard title="事件流" flat>
       <div class="row">
-        <StatusBadge :state="live ? 'running' : 'pending'" :label="live ? 'LIVE' : 'CLOSED'" />
-        <span class="muted">events: {{ events.length }}</span>
-        <span class="muted">stderr: {{ stderrCount }}</span>
+        <StatusBadge :state="live ? 'running' : 'pending'" :label="live ? 'LIVE' : '轮询中'" />
+        <span class="muted">事件: {{ events.length }}</span>
+        <span class="muted">错误: {{ stderrCount }}</span>
         <span class="muted approval">approval: {{ approvalCount }}</span>
         <span class="muted err">errors: {{ errorCount }}</span>
         <button @click="startStream" :disabled="!sessionId">重启 SSE</button>
