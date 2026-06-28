@@ -38,7 +38,9 @@ interface FailureDetail {
 }
 const failureDetail = ref<FailureDetail | null>(null);
 
-let stopStream: (() => void) | null = null;
+let pollEvents: ReturnType<typeof setInterval> | null = null;
+const eventsLoaded = ref(0);
+let eventsAccumulated: SessionEvent[] = [];
 
 const stdout = computed(() => {
   return events.value
@@ -79,6 +81,41 @@ function parseFailureFromEvent(payload: Record<string, unknown>): FailureDetail 
   return { title, reason, timedOut, details: stderr || undefined };
 }
 
+let stopStream: (() => void) | null = null;
+
+async function loadEvents(): Promise<void> {
+  if (!sessionId.value) return;
+  try {
+    const evs = await getJson<SessionEvent[]>(`/api/sessions/${sessionId.value}/events`);
+    // Merge: keep new events since last loaded count
+    if (evs.length > eventsLoaded.value) {
+      const newEvts = evs.slice(eventsLoaded.value);
+      for (const e of newEvts) {
+        eventsAccumulated.push(e);
+        countEvent(e);
+      }
+      events.value = [...eventsAccumulated];
+      eventsLoaded.value = evs.length;
+    }
+  } catch {
+    /* ignore */
+  }
+}
+
+function countEvent(e: SessionEvent): void {
+  if (e.type === 'opencode.stderr' || e.type === 'stderr' || e.eventType === 'opencode.stderr') stderrCount.value++;
+  if (e.type === 'approval.requested' || e.type === 'approval_request') approvalCount.value++;
+  if (e.type === 'assessment.error' || e.type === 'error') errorCount.value++;
+  if (e.type === 'assessment.failed' || e.type === 'assessment.error') {
+    const detail = parseFailureFromEvent((e.payload as Record<string, unknown>) ?? {});
+    if (detail) failureDetail.value = detail;
+    if (sessionInfo.value) sessionInfo.value = { ...sessionInfo.value, status: 'failed' };
+  }
+  if (e.type === 'assessment.completed') {
+    if (sessionInfo.value) sessionInfo.value = { ...sessionInfo.value, status: 'completed' };
+  }
+}
+
 async function loadSession(): Promise<void> {
   if (!sessionId.value) return;
   try {
@@ -92,15 +129,16 @@ async function loadSession(): Promise<void> {
     } catch {
       artifacts.value = [];
     }
-    if (s.status === 'failed') {
-      try {
-        const evs = await getJson<SessionEvent[]>(`/api/sessions/${sessionId.value}/events`);
-        const fail = evs.find((e) => e.type === 'assessment.failed' || e.type === 'assessment.error' || e.eventType === 'assessment.failed' || e.eventType === 'assessment.error');
-        if (fail) {
-          failureDetail.value = parseFailureFromEvent((fail.payload as Record<string, unknown>) ?? {});
-        }
-      } catch {
-        /* ignore */
+    await loadEvents();
+    if (s.status === 'failed' || s.status === 'completed') {
+      const fail = eventsAccumulated.find((e) =>
+        e.type === 'assessment.failed' || e.type === 'assessment.error' ||
+        e.eventType === 'assessment.failed' || e.eventType === 'assessment.error'
+      );
+      if (fail) {
+        failureDetail.value = parseFailureFromEvent((fail.payload as Record<string, unknown>) ?? {});
+      } else if (s.status === 'failed') {
+        failureDetail.value = { title: '评估执行失败', reason: '请查看下方事件流', timedOut: false };
       }
     }
   } catch (e) {
@@ -111,49 +149,43 @@ async function loadSession(): Promise<void> {
 function startStream(): void {
   if (!sessionId.value) return;
   live.value = true;
-  events.value = [];
-  stderrCount.value = 0;
-  approvalCount.value = 0;
-  errorCount.value = 0;
-  phaseProgress.value = {};
 
+  // Try SSE
   stopStream = subscribeEvents(
     sessionId.value,
     (e) => {
-      events.value.push(e);
-      if (events.value.length > 5000) events.value.splice(0, events.value.length - 5000);
-
-      if (e.type === 'opencode.stderr' || e.type === 'stderr') stderrCount.value++;
-      if (e.type === 'approval.requested' || e.type === 'approval_request') approvalCount.value++;
-      if (e.type === 'assessment.error' || e.type === 'error') errorCount.value++;
-      if (e.type === 'assessment.failed' || e.type === 'assessment.error') {
-        const detail = parseFailureFromEvent((e.payload as Record<string, unknown>) ?? {});
-        if (detail) failureDetail.value = detail;
-        if (sessionInfo.value) sessionInfo.value = { ...sessionInfo.value, status: 'failed' };
-      }
-      if (e.type === 'phase.started' || e.type === 'phase.completed' || e.type === 'phase') {
-        const p = (e.payload as Record<string, unknown>) ?? {};
-        const name = String(p.phase ?? p.name ?? '');
-        const state = e.type === 'phase.completed' ? 'pass' : 'running';
-        if (name) {
-          phaseProgress.value = {
-            ...phaseProgress.value,
-            [name]: { state, wuCount: Number(p.wuCount ?? 0) }
-          };
-        }
-      }
+      eventsAccumulated.push(e);
+      events.value = [...eventsAccumulated];
+      countEvent(e);
     },
     () => {
       live.value = false;
-      // refresh session status + failure detail once stream ends
       void loadSession();
     }
   );
+
+  // Also poll events API every 2s as fallback
+  pollEvents = setInterval(async () => {
+    await loadEvents();
+    // Refresh session status
+    try {
+      const s = await getJson<SessionInfo>(`/api/sessions/${sessionId.value}`);
+      if (sessionInfo.value?.status !== s.status) {
+        sessionInfo.value = s;
+      }
+      if (s.status === 'completed' || s.status === 'failed') {
+        if (pollEvents) { clearInterval(pollEvents); pollEvents = null; }
+        live.value = false;
+        await loadSession();
+      }
+    } catch { /* ignore */ }
+  }, 2000);
 }
 
 function stopTyping(): void {
   if (stopStream) stopStream();
   stopStream = null;
+  if (pollEvents) { clearInterval(pollEvents); pollEvents = null; }
   live.value = false;
 }
 

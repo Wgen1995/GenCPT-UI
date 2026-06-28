@@ -45,7 +45,7 @@ export function runOpencode(input: RunOpencodeInput): Promise<RunOpencodeResult>
   // so we do NOT need `--dir <skill>`. We use gencptPath as cwd.
   // We use `--format json` to get machine-readable events, from which we extract
   // the opencode session id (payload.id on a `session` event line).
-  const args = ['run', '--format', 'json'];
+  const args = ['run'];
   if (input.model) args.push('-m', input.model);
   if (input.thinking) args.push('--thinking');
   if (input.variant) args.push('--variant', input.variant);
