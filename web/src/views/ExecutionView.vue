@@ -2,7 +2,7 @@
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { getJson } from '../api/client.js';
-import { subscribeEvents, type SessionEvent } from '../api/sse.js';
+import type { SessionEvent } from '../api/sse.js';
 import PanelCard from '../components/common/PanelCard.vue';
 import StatusBadge from '../components/common/StatusBadge.vue';
 import EmptyState from '../components/common/EmptyState.vue';
@@ -127,21 +127,21 @@ function parseFailureFromEvent(payload: Record<string, unknown>): FailureDetail 
   return { title, reason, timedOut, details: stderr || undefined };
 }
 
-let stopStream: (() => void) | null = null;
-
 async function loadEvents(): Promise<void> {
   if (!sessionId.value) return;
   try {
-    const evs = await getJson<SessionEvent[]>(`/api/sessions/${sessionId.value}/events`);
-    // Merge: keep new events since last loaded count
-    if (evs.length > eventsLoaded.value) {
-      const newEvts = evs.slice(eventsLoaded.value);
-      for (const e of newEvts) {
+    const lastId = eventsAccumulated.length > 0 ? eventsAccumulated[eventsAccumulated.length - 1].id : 0;
+    const url = `/api/sessions/${sessionId.value}/events${lastId ? `?afterId=${lastId}` : ''}`;
+    const evs = await getJson<SessionEvent[]>(url);
+    if (evs.length > 0) {
+      for (const e of evs) {
         eventsAccumulated.push(e);
         countEvent(e);
       }
-      events.value = [...eventsAccumulated];
-      eventsLoaded.value = evs.length;
+      if (eventsAccumulated.length > 3000) {
+        eventsAccumulated = eventsAccumulated.slice(-3000);
+      }
+      events.value = eventsAccumulated.slice();
     }
   } catch {
     /* ignore */
@@ -192,28 +192,12 @@ async function loadSession(): Promise<void> {
   }
 }
 
-function startStream(): void {
+function startPolling(): void {
   if (!sessionId.value) return;
   live.value = true;
 
-  // Try SSE
-  stopStream = subscribeEvents(
-    sessionId.value,
-    (e) => {
-      eventsAccumulated.push(e);
-      events.value = [...eventsAccumulated];
-      countEvent(e);
-    },
-    () => {
-      live.value = false;
-      void loadSession();
-    }
-  );
-
-  // Also poll events API every 2s as fallback
   pollEvents = setInterval(async () => {
     await loadEvents();
-    // Refresh session status
     try {
       const s = await getJson<SessionInfo>(`/api/sessions/${sessionId.value}`);
       if (sessionInfo.value?.status !== s.status) {
@@ -228,9 +212,7 @@ function startStream(): void {
   }, 2000);
 }
 
-function stopTyping(): void {
-  if (stopStream) stopStream();
-  stopStream = null;
+function stopPolling(): void {
   if (pollEvents) { clearInterval(pollEvents); pollEvents = null; }
   live.value = false;
 }
@@ -241,11 +223,11 @@ function goQuality(): void {
 
 onMounted(async () => {
   await loadSession();
-  startStream();
+  startPolling();
 });
 
 onBeforeUnmount(() => {
-  stopTyping();
+  stopPolling();
 });
 </script>
 
@@ -347,7 +329,7 @@ onBeforeUnmount(() => {
         <span class="muted">错误: {{ stderrCount }}</span>
         <span class="muted approval">approval: {{ approvalCount }}</span>
         <span class="muted err">errors: {{ errorCount }}</span>
-        <button @click="startStream" :disabled="!sessionId">重启 SSE</button>
+        <button @click="startPolling" :disabled="!sessionId">开始轮询</button>
         <button @click="goQuality">查看 Quality Gates →</button>
       </div>
       <ul class="event-list">

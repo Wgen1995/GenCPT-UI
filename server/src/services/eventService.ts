@@ -53,9 +53,12 @@ export function appendEvent(db: Database.Database, input: AppendEventInput): Eve
   return rowToEvent(row);
 }
 
-export function listEvents(db: Database.Database, sessionId: string): Event[] {
-  const rows = db
-    .prepare('SELECT * FROM events WHERE session_id = ? ORDER BY created_at ASC')
-    .all(sessionId) as EventRow[];
+export function listEvents(db: Database.Database, sessionId: string, afterId?: number): Event[] {
+  const sql = afterId != null
+    ? 'SELECT * FROM events WHERE session_id = ? AND id > ? ORDER BY id ASC'
+    : 'SELECT * FROM events WHERE session_id = ? ORDER BY created_at ASC';
+  const rows = afterId != null
+    ? db.prepare(sql).all(sessionId, afterId) as EventRow[]
+    : db.prepare(sql).all(sessionId) as EventRow[];
   return rows.map(rowToEvent);
 }

@@ -10,7 +10,8 @@ export function createEventsRoute(db: Database.Database): Hono {
   route.get('/sessions/:id/events', (c) => {
     const id = c.req.param('id');
     if (!getSession(db, id)) return c.json({ error: 'session not found' }, 404);
-    return c.json(listEvents(db, id));
+    const afterId = c.req.query('afterId');
+    return c.json(listEvents(db, id, afterId ? Number(afterId) : undefined));
   });
 
   route.get('/sessions/:id/events/stream', (c) => {
