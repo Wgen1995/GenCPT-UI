@@ -1,0 +1,31 @@
+{
+  "name": "@gencpt-workbench/web",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 0.0.0.0",
+    "test": "vitest run --passWithNoTests",
+    "typecheck": "vue-tsc --noEmit"
+  },
+  "dependencies": {
+    "@vitejs/plugin-vue": "latest",
+    "d3": "latest",
+    "echarts": "latest",
+    "marked": "latest",
+    "pinia": "latest",
+    "vite": "latest",
+    "vue": "latest",
+    "vue-router": "latest",
+    "@xterm/xterm": "latest",
+    "@xterm/addon-fit": "latest"
+  },
+  "devDependencies": {
+    "@playwright/test": "latest",
+    "@vue/test-utils": "latest",
+    "@types/d3": "latest",
+    "jsdom": "^24.1.0",
+    "typescript": "latest",
+    "vitest": "latest",
+    "vue-tsc": "latest"
+  }
+}

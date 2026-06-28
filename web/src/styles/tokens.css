@@ -1,0 +1,43 @@
+:root {
+  /* surfaces */
+  --bg0: #050807;
+  --bg1: #0a0f0c;
+  --bg2: #111820;
+  --bg3: #1a2332;
+  --bg4: #222f3e;
+  --bd: #1e2d40;
+  --bdl: #2a3f58;
+  /* text */
+  --t1: #e6edf3;
+  --t2: #9da7b3;
+  --t3: #6e7681;
+  /* accents */
+  --ac: #00ff88;
+  --cy: #00b4d8;
+  --am: #ffb800;
+  --rd: #f85149;
+  --pp: #a371f7;
+  --teal: #2dd4bf;
+  /* layout */
+  --header-height: 48px;
+  --sidebar-width: 220px;
+  --sidebar-collapsed: 56px;
+  --radius: 8px;
+  --radius-sm: 4px;
+  --gap: 12px;
+  --gap-sm: 6px;
+  /* status colors derived */
+  --st-pending: var(--t3);
+  --st-running: var(--cy);
+  --st-pass: var(--ac);
+  --st-warn: var(--am);
+  --st-fail: var(--rd);
+  --st-na: var(--t3);
+  --c1: var(--ac);
+  --c2: var(--cy);
+  --c3: var(--rd);
+  --l0: var(--t3);
+  --l1: var(--cy);
+  --l2: var(--am);
+  --l3: var(--rd);
+}

@@ -1,0 +1,13 @@
+{
+  "name": "gencpt-workbench",
+  "private": true,
+  "packageManager": "pnpm@9.15.0",
+  "scripts": {
+    "dev": "pnpm --parallel --filter @gencpt-workbench/server --filter @gencpt-workbench/web dev",
+    "test": "pnpm --recursive test",
+    "typecheck": "pnpm --recursive typecheck"
+  },
+  "devDependencies": {
+    "@rolldown/binding-linux-x64-gnu": "^1.1.3"
+  }
+}

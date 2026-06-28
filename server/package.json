@@ -1,0 +1,29 @@
+{
+  "name": "@gencpt-workbench/server",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "test": "vitest run --passWithNoTests",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@hono/node-server": "latest",
+    "better-sqlite3": "latest",
+    "chokidar": "latest",
+    "fast-glob": "latest",
+    "gray-matter": "latest",
+    "hono": "latest",
+    "js-yaml": "latest",
+    "marked": "latest",
+    "zod": "latest"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "latest",
+    "@types/js-yaml": "latest",
+    "@types/node": "latest",
+    "tsx": "latest",
+    "typescript": "latest",
+    "vitest": "latest"
+  }
+}

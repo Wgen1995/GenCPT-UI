@@ -1,0 +1,14 @@
+node_modules/
+dist/
+.env
+.env.*
+data/
+artifacts/
+logs/
+*.log
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
+config/gencpt-workbench.yaml

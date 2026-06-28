@@ -1,0 +1,15 @@
+server:
+  host: 0.0.0.0
+  port: 7090
+
+opencode:
+  command: opencode
+  timeout_ms: 300000
+
+gencpt:
+  session_root: /tmp
+  auto_detect: true
+
+storage:
+  data_dir: ./data
+  artifact_dir: ./artifacts
