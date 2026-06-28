@@ -39,6 +39,12 @@ cd gencpt-workbench
 pnpm install
 ```
 
+如果网络封锁 GitHub 导致 better-sqlite3 安装失败，使用仓库内置的预编译二进制：
+```bash
+pnpm install --ignore-scripts
+pnpm run setup
+```
+
 ### 配置
 
 Workbench 启动时自动识别 GenCPT 路径。如果未识别，可以：
