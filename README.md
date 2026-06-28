@@ -39,10 +39,15 @@ cd gencpt-workbench
 pnpm install
 ```
 
-如果网络封锁 GitHub 导致 better-sqlite3 安装失败，使用仓库内置的预编译二进制：
+如果遇到以下情况：
+- 网络封锁 GitHub（如企业内网），better-sqlite3 预编译二进制下载失败
+- 本机没有 C++ 编译环境（Visual Studio Build Tools / gcc / python），源码编译失败
+
+仓库已内置 linux-x64、win32-x64、darwin-x64、darwin-arm64 四个平台的预编译二进制。使用方式：
 ```bash
-pnpm install --ignore-scripts
-pnpm run setup
+pnpm install --ignore-scripts   # 跳过 better-sqlite3 的编译
+pnpm run setup                  # 自动匹配当前平台，拷贝预置二进制
+pnpm dev                        # 启动
 ```
 
 ### 配置
