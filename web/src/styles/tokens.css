@@ -1,43 +1,61 @@
 :root {
-  /* surfaces */
-  --bg0: #050807;
-  --bg1: #0a0f0c;
-  --bg2: #111820;
-  --bg3: #1a2332;
-  --bg4: #222f3e;
-  --bd: #1e2d40;
-  --bdl: #2a3f58;
-  /* text */
-  --t1: #e6edf3;
-  --t2: #9da7b3;
-  --t3: #6e7681;
-  /* accents */
-  --ac: #00ff88;
-  --cy: #00b4d8;
-  --am: #ffb800;
-  --rd: #f85149;
-  --pp: #a371f7;
-  --teal: #2dd4bf;
+  /* surfaces — deep grey, not pure black */
+  --bg0: #0D1117;
+  --bg1: #161B22;
+  --bg2: #1C232C;
+  --bg3: #252D38;
+  --bg-hover: #2D333B;
+  --bg4: #2D333B;
+  /* borders */
+  --border: #2D333B;
+  --border-strong: #3D4449;
+  --bd: #2D333B;
+  --bdl: #3D4449;
+  /* text — high contrast */
+  --text-primary: #E6EDF3;
+  --text-secondary: #9DA7B3;
+  --text-tertiary: #6E7681;
+  --t1: #E6EDF3;
+  --t2: #9DA7B3;
+  --t3: #6E7681;
+  /* 5 colour accent system */
+  --accent-blue: #2F81F7;
+  --accent-green: #3FB950;
+  --accent-amber: #D29922;
+  --accent-red: #F85149;
+  --accent-purple: #A371F7;
+  --accent: #2F81F7;
+  --success: #3FB950;
+  --warning: #D29922;
+  --danger: #F85149;
+  --info: #A371F7;
+  /* legacy aliases (kept for back-compat with existing components) */
+  --ac: #3FB950;
+  --cy: #2F81F7;
+  --am: #D29922;
+  --rd: #F85149;
+  --pp: #A371F7;
+  --teal: #2DD4BF;
   /* layout */
   --header-height: 48px;
   --sidebar-width: 220px;
   --sidebar-collapsed: 56px;
-  --radius: 8px;
-  --radius-sm: 4px;
-  --gap: 12px;
-  --gap-sm: 6px;
-  /* status colors derived */
-  --st-pending: var(--t3);
-  --st-running: var(--cy);
-  --st-pass: var(--ac);
-  --st-warn: var(--am);
-  --st-fail: var(--rd);
-  --st-na: var(--t3);
-  --c1: var(--ac);
-  --c2: var(--cy);
-  --c3: var(--rd);
-  --l0: var(--t3);
-  --l1: var(--cy);
-  --l2: var(--am);
-  --l3: var(--rd);
+  --radius: 12px;
+  --radius-sm: 6px;
+  --gap: 16px;
+  --gap-sm: 8px;
+  /* status colours derived */
+  --st-pending: var(--text-tertiary);
+  --st-running: var(--accent-blue);
+  --st-pass: var(--success);
+  --st-warn: var(--warning);
+  --st-fail: var(--danger);
+  --st-na: var(--text-tertiary);
+  --c1: var(--success);
+  --c2: var(--accent-blue);
+  --c3: var(--danger);
+  --l0: var(--text-tertiary);
+  --l1: var(--accent-blue);
+  --l2: var(--warning);
+  --l3: var(--danger);
 }

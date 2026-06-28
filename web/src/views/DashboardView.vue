@@ -87,7 +87,51 @@ onMounted(loadDashboard);
 
     <p v-if="error" class="err">{{ error }}</p>
 
-    <!-- 无 session：资产驾驶舱 -->
+    <!-- 能力资产 KPI 行（始终显示） -->
+    <div class="kpi-row" v-if="assets">
+      <div class="mc"><div class="mc-l">子技能</div><div class="mc-v">{{ skillCount }}</div><div class="mc-s">可独立运行</div></div>
+      <div class="mc"><div class="mc-l">合规规则</div><div class="mc-v" style="color:var(--warning)">{{ ruleCount }}</div><div class="mc-s">3 平台 / 41 分组</div></div>
+      <div class="mc"><div class="mc-l">攻击模式</div><div class="mc-v" style="color:var(--danger)">{{ patternCount }}</div><div class="mc-s">7 攻击面</div></div>
+      <div class="mc"><div class="mc-l">三库</div><div class="mc-v" style="color:var(--info)">{{ triLibCount }}</div><div class="mc-s">CHK/ATK/XREF</div></div>
+      <div class="mc"><div class="mc-l">Harness 机制</div><div class="mc-v" style="color:var(--teal)">{{ harnessCount }}</div><div class="mc-s">AI 工程纪律</div></div>
+      <div class="mc"><div class="mc-l">公共规范</div><div class="mc-v" style="color:var(--accent-blue)">{{ sharedSpecCount }}</div><div class="mc-s">shared 规范库</div></div>
+    </div>
+
+    <!-- 能力资产详情（始终显示） -->
+    <div class="grid-2" v-if="assets" style="margin-top:20px">
+      <PanelCard title="安全测试能力资产" accent>
+        <dl class="kv">
+          <dt>入口 SKILL</dt>
+          <dd>
+            <StatusBadge :state="assets.entrySkill.exists ? 'pass' : 'fail'"
+              :label="assets.entrySkill.exists ? '存在' : '缺失'" />
+          </dd>
+          <dt>攻击面</dt><dd>{{ attackSurfaceCount }}</dd>
+          <dt>tools 工具库</dt>
+          <dd>
+            <StatusBadge :state="assets.tools.indexExists ? 'pass' : 'warn'"
+              :label="assets.tools.indexExists ? '存在' : '缺失'" />
+          </dd>
+        </dl>
+        <template #footer>
+          <RouterLink class="link" to="/tool-assets">查看工具资产全景 →</RouterLink>
+        </template>
+      </PanelCard>
+
+      <PanelCard title="AI Harness 工程资产">
+        <dl class="kv">
+          <dt>写盘优先</dt><dd><StatusBadge state="pass" label="已就绪" /></dd>
+          <dt>反幻觉六条</dt><dd><StatusBadge state="pass" label="已就绪" /></dd>
+          <dt>QA 三层</dt><dd><StatusBadge state="pass" label="已就绪" /></dd>
+          <dt>审批门控</dt><dd><StatusBadge state="pass" label="已就绪" /></dd>
+        </dl>
+        <template #footer>
+          <span class="muted">扫描时间: {{ assets.scannedAt }}</span>
+        </template>
+      </PanelCard>
+    </div>
+
+    <!-- 无 session：快捷入口 -->
     <template v-if="!hasSession">
       <EmptyState
         v-if="!loading && !error && sessions.length === 0"
@@ -99,48 +143,6 @@ onMounted(loadDashboard);
           <button class="primary" @click="launch">启动新评估</button>
         </div>
       </EmptyState>
-
-      <div class="kpi-row" v-if="assets">
-        <div class="mc"><div class="mc-l">子技能</div><div class="mc-v">{{ skillCount }}</div><div class="mc-s">可独立运行</div></div>
-        <div class="mc"><div class="mc-l">合规规则</div><div class="mc-v" style="color:var(--am)">{{ ruleCount }}</div><div class="mc-s">3 平台 / 41 分组</div></div>
-        <div class="mc"><div class="mc-l">攻击模式</div><div class="mc-v" style="color:var(--rd)">{{ patternCount }}</div><div class="mc-s">7 攻击面</div></div>
-        <div class="mc"><div class="mc-l">三库</div><div class="mc-v" style="color:var(--pp)">{{ triLibCount }}</div><div class="mc-s">CHK/ATK/XREF</div></div>
-        <div class="mc"><div class="mc-l">Harness 机制</div><div class="mc-v" style="color:var(--teal)">{{ harnessCount }}</div><div class="mc-s">AI 工程纪律</div></div>
-        <div class="mc"><div class="mc-l">公共规范</div><div class="mc-v" style="color:var(--cy)">{{ sharedSpecCount }}</div><div class="mc-s">shared 规范库</div></div>
-      </div>
-
-      <div class="grid-2" v-if="assets" style="margin-top:20px">
-        <PanelCard title="安全测试能力资产" accent>
-          <dl class="kv">
-            <dt>入口 SKILL</dt>
-            <dd>
-              <StatusBadge :state="assets.entrySkill.exists ? 'pass' : 'fail'"
-                :label="assets.entrySkill.exists ? '存在' : '缺失'" />
-            </dd>
-            <dt>攻击面</dt><dd>{{ attackSurfaceCount }}</dd>
-            <dt>tools 工具库</dt>
-            <dd>
-              <StatusBadge :state="assets.tools.indexExists ? 'pass' : 'warn'"
-                :label="assets.tools.indexExists ? '存在' : '缺失'" />
-            </dd>
-          </dl>
-          <template #footer>
-            <RouterLink class="link" to="/tool-assets">查看工具资产全景 →</RouterLink>
-          </template>
-        </PanelCard>
-
-        <PanelCard title="AI Harness 工程资产">
-          <dl class="kv">
-            <dt>写盘优先</dt><dd><StatusBadge state="pass" label="已就绪" /></dd>
-            <dt>反幻觉六条</dt><dd><StatusBadge state="pass" label="已就绪" /></dd>
-            <dt>QA 三层</dt><dd><StatusBadge state="pass" label="已就绪" /></dd>
-            <dt>审批门控</dt><dd><StatusBadge state="pass" label="已就绪" /></dd>
-          </dl>
-          <template #footer>
-            <span class="muted">扫描时间: {{ assets.scannedAt }}</span>
-          </template>
-        </PanelCard>
-      </div>
 
       <PanelCard v-if="sessions.length > 0" title="历史 session（点击进入）" flat>
         <ul class="link-list">
@@ -161,7 +163,7 @@ onMounted(loadDashboard);
       </PanelCard>
     </template>
 
-    <!-- 有 session：session 总览 -->
+    <!-- 有 session：session 详情（叠加在能力资产下方） -->
     <template v-else>
       <PanelCard title="Session 摘要" accent>
         <dl class="kv">
@@ -212,15 +214,6 @@ onMounted(loadDashboard);
             </a>
           </li>
         </ul>
-      </PanelCard>
-
-      <PanelCard title="资产快照" flat>
-        <dl class="kv inline">
-          <dt>SKILL</dt><dd>{{ skillCount }}</dd>
-          <dt>规则</dt><dd>{{ ruleCount }}</dd>
-          <dt>模式</dt><dd>{{ patternCount }}</dd>
-          <dt>Harness 机制</dt><dd>{{ harnessCount }}</dd>
-        </dl>
       </PanelCard>
     </template>
   </div>

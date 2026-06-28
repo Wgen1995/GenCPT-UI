@@ -29,6 +29,14 @@ const phaseProgress = ref<Record<string, { state: string; wuCount: number }>>({}
 const artifacts = ref<Array<{ id: string; path: string; relativePath?: string; kind: string; size?: number }>>([]);
 const error = ref<string | null>(null);
 
+interface FailureDetail {
+  title: string;
+  reason: string;
+  timedOut: boolean;
+  details?: string;
+}
+const failureDetail = ref<FailureDetail | null>(null);
+
 let stopStream: (() => void) | null = null;
 
 const stdout = computed(() => {
@@ -45,6 +53,25 @@ const stderr = computed(() => {
     .join('\n');
 });
 
+function parseFailureFromEvent(payload: Record<string, unknown>): FailureDetail | null {
+  const timedOut = Boolean(payload?.timedOut);
+  const stderr = payload?.stderr != null ? String(payload.stderr) : '';
+  const exitCode = payload?.exitCode;
+  let title = '评估执行失败';
+  let reason = '';
+  if (timedOut) {
+    title = '评估执行超时';
+    reason = 'opencode 进程在超时时限内未完成（可能由余额耗尽、网络中断或目标不可达导致）。';
+  } else if (stderr) {
+    reason = stderr.split('\n').find((l) => l.trim().length > 0) ?? stderr.slice(0, 200);
+  } else if (exitCode != null) {
+    reason = `opencode 进程异常退出（exit code ${exitCode}），未捕获 stderr 输出。`;
+  } else {
+    return null;
+  }
+  return { title, reason, timedOut, details: stderr || undefined };
+}
+
 async function loadSession(): Promise<void> {
   if (!sessionId.value) return;
   try {
@@ -57,6 +84,17 @@ async function loadSession(): Promise<void> {
       artifacts.value = arts.artifacts ?? [];
     } catch {
       artifacts.value = [];
+    }
+    if (s.status === 'failed') {
+      try {
+        const evs = await getJson<SessionEvent[]>(`/api/sessions/${sessionId.value}/events`);
+        const fail = evs.find((e) => e.type === 'assessment.failed' || e.type === 'assessment.error');
+        if (fail) {
+          failureDetail.value = parseFailureFromEvent((fail.payload as Record<string, unknown>) ?? {});
+        }
+      } catch {
+        /* ignore */
+      }
     }
   } catch (e) {
     error.value = (e as Error).message;
@@ -81,6 +119,11 @@ function startStream(): void {
       if (e.type === 'stderr') stderrCount.value++;
       if (e.type === 'approval' || e.type === 'approval_request') approvalCount.value++;
       if (e.type === 'error' || e.type === 'fail') errorCount.value++;
+      if (e.type === 'assessment.failed' || e.type === 'assessment.error') {
+        const detail = parseFailureFromEvent((e.payload as Record<string, unknown>) ?? {});
+        if (detail) failureDetail.value = detail;
+        if (sessionInfo.value) sessionInfo.value = { ...sessionInfo.value, status: 'failed' };
+      }
       if (e.type === 'phase') {
         const p = (e.payload as Record<string, unknown>) ?? {};
         const name = String(p.phase ?? p.name ?? '');
@@ -95,7 +138,8 @@ function startStream(): void {
     },
     () => {
       live.value = false;
-      error.value = error.value ?? 'stream closed';
+      // refresh session status + failure detail once stream ends
+      void loadSession();
     }
   );
 }
@@ -133,6 +177,22 @@ onBeforeUnmount(() => {
     </div>
 
     <p v-if="error" class="err">{{ error }}</p>
+
+    <div v-if="failureDetail" class="alert-banner danger">
+      <span class="alert-icon">⚠</span>
+      <div class="alert-body">
+        <div class="alert-title">{{ failureDetail.title }}</div>
+        <div>{{ failureDetail.reason }}</div>
+        <pre v-if="failureDetail.details">{{ failureDetail.details }}</pre>
+      </div>
+    </div>
+    <div v-else-if="sessionInfo && sessionInfo.status === 'failed'" class="alert-banner warning">
+      <span class="alert-icon">⚠</span>
+      <div class="alert-body">
+        <div class="alert-title">Session 状态为 failed</div>
+        <div>未捕获到 assessment.failed 事件详情，可在下方事件流中查看 stderr 输出。</div>
+      </div>
+    </div>
 
     <PanelCard v-if="sessionInfo" title="Session 元信息" flat>
       <dl class="kv inline">

@@ -114,11 +114,13 @@ const showBackButton = computed(() => {
 <template>
   <div class="app-shell" :class="{ collapsed: ui.sidebarCollapsed }">
     <header class="app-header">
-      <button v-if="showBackButton" class="back-btn" @click="goBack">← 返回</button>
-      <span class="brand" @click="router.push('/dashboard')">⬡ GenCPT · Workbench</span>
       <button @click="ui.toggleSidebar()" aria-label="切换侧栏">
         {{ ui.sidebarCollapsed ? '»' : '«' }}
       </button>
+      <span class="brand" @click="router.push('/dashboard')">
+        <span class="accent">⬡ GenCPT</span> · Workbench
+      </span>
+      <button v-if="showBackButton" class="back-btn" @click="goBack">← 返回</button>
       <span v-if="sessionName" class="session-pill">当前 Session: {{ sessionName }}</span>
     </header>
     <nav class="app-sidebar">
@@ -133,7 +135,7 @@ const showBackButton = computed(() => {
           @click="go(item)"
         >
           {{ item.label }}
-          <span v-if="isDisabled(item)" class="muted" style="font-size:10px;margin-left:auto">需 Session</span>
+          <span v-if="isDisabled(item)" class="tag-needs-session">需 Session</span>
         </a>
       </div>
     </nav>
