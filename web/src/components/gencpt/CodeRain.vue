@@ -7,7 +7,7 @@ import { onMounted, onBeforeUnmount, ref } from 'vue';
 
 const canvas = ref<HTMLCanvasElement | null>(null);
 let animId = 0;
-const chars = '01'.split('');
+const chars = '01アイウエオカキクケコサシスセソタチツテト'.split('');
 const fontSize = 14;
 
 onMounted(() => {
@@ -23,18 +23,18 @@ onMounted(() => {
   init();
 
   function draw() {
-    ctx.fillStyle = 'rgba(13, 19, 24, 0.05)';
+    ctx.fillStyle = 'rgba(13, 19, 24, 0.1)';
     ctx.fillRect(0, 0, el!.width, el!.height);
     ctx.fillStyle = '#00FF88';
-    ctx.font = `${fontSize}px JetBrains Mono`;
+    ctx.font = `bold ${fontSize}px JetBrains Mono`;
 
     for (let i = 0; i < drops.length; i++) {
       const text = chars[Math.floor(Math.random() * chars.length)];
       const x = i * fontSize;
       const y = drops[i] * fontSize;
-      ctx.globalAlpha = 0.06;
+      ctx.globalAlpha = 0.15;
       ctx.fillText(text, x, y);
-      if (y > el!.height && Math.random() > 0.99) drops[i] = 0;
+      if (y > el!.height && Math.random() > 0.98) drops[i] = 0;
       drops[i]++;
     }
     ctx.globalAlpha = 1;
