@@ -20,15 +20,11 @@ export function createEnvironmentRoute(config: WorkbenchConfig): Hono {
   route.post('/environment/rescan', (c) => c.json(resolveResult()));
 
   route.post('/environment', async (c) => {
-    const body = await c.req.json();
+    let body: Record<string, unknown> = {};
+    try { body = await c.req.json() as Record<string, unknown>; } catch { return c.json({ error: 'invalid JSON' }, 400); }
     if (body?.gencptHome && typeof body.gencptHome === 'string') {
-      const result = checkEnvironment({
-        opencodeCommand: config.opencode.command,
-        gencptHome: body.gencptHome,
-        artifactDir: config.storage.artifactDir,
-        sessionRoot: config.gencpt.sessionRoot
-      });
-      return c.json(result);
+      config.gencpt.home = body.gencptHome;
+      return c.json(resolveResult());
     }
     return c.json({ error: 'gencptHome required' }, 400);
   });

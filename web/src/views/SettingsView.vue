@@ -23,6 +23,8 @@ const env = ref<EnvironmentResult | null>(null);
 const assets = ref<AssetIndex | null>(null);
 const rescanningEnv = ref(false);
 const rescanningAssets = ref(false);
+const manualPath = ref('');
+const savingPath = ref(false);
 
 async function load(): Promise<void> {
   loading.value = true;
@@ -60,6 +62,19 @@ async function rescanAssets(): Promise<void> {
     error.value = (e as Error).message;
   } finally {
     rescanningAssets.value = false;
+  }
+}
+
+async function saveGenCptPath(): Promise<void> {
+  if (!manualPath.value.trim()) return;
+  savingPath.value = true;
+  try {
+    env.value = await postJson<EnvironmentResult>('/api/environment', { gencptHome: manualPath.value.trim() });
+    assets.value = await postJson<AssetIndex>('/api/assets/rescan', {});
+  } catch (e) {
+    error.value = (e as Error).message;
+  } finally {
+    savingPath.value = false;
   }
 }
 
@@ -107,6 +122,15 @@ onMounted(load);
           <dt>Home</dt><dd class="mono">{{ env.gencpt?.home ?? '-' }}</dd>
           <dt>整体可用</dt>
           <dd><StatusBadge :state="gencptOk ? 'pass' : 'fail'" :label="gencptOk ? '齐全' : '缺失'" /></dd>
+          <dt>手动配置路径</dt>
+          <dd>
+            <div class="path-row">
+              <input v-model="manualPath" :placeholder="env.gencpt?.home || '/path/to/gencpt'" class="gi" />
+              <button @click="saveGenCptPath" :disabled="savingPath" class="primary">
+                {{ savingPath ? '保存中…' : '保存并检测' }}
+              </button>
+            </div>
+          </dd>
           <dt>Artifact 目录</dt>
           <dd>
             <code class="mono">{{ env.artifactDir?.path ?? '-' }}</code>
@@ -177,4 +201,4 @@ onMounted(load);
 .req-list li { display: grid; grid-template-columns: 40px 140px 1fr; gap: 8px; align-items: center; padding: 3px 0; border-bottom: 1px dashed var(--bd); font-size: 12px; }
 .req-list .path { font-size: 10px; }
 .row { display: flex; gap: 8px; margin-top: 10px; }
-</style>
+</style>.path-row { display: flex; gap: 8px; align-items: center; }
