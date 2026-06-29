@@ -491,8 +491,6 @@ textarea:focus {
 .ws {
   flex: 1; overflow-y: auto;
   background: #0D1318;
-  background-image: radial-gradient(circle, rgba(0, 255, 136, 0.06) 1px, transparent 1px);
-  background-size: 24px 24px;
   padding: 28px;
 }
 .ws > * { animation: fadeUp 0.25s ease; }

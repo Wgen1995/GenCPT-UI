@@ -10,6 +10,7 @@ import type {
 import PanelCard from '../components/common/PanelCard.vue';
 import StatusBadge from '../components/common/StatusBadge.vue';
 import EmptyState from '../components/common/EmptyState.vue';
+import CodeRain from '../components/gencpt/CodeRain.vue';
 
 const router = useRouter();
 
@@ -92,7 +93,8 @@ onMounted(loadDashboard);
 </script>
 
 <template>
-  <div class="view dashboard-view">
+  <div class="view dashboard-view" style="position:relative">
+    <CodeRain />
     <div class="view-head">
       <div>
         <h1>总览驾驶舱</h1>
