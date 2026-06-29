@@ -93,7 +93,6 @@ const showBackButton = computed(() => route.path !== '/dashboard');
     <!-- Header -->
     <header class="hd">
       <div class="hd-l">
-        <button v-if="showBackButton" class="hd-back" @click="goBack">←</button>
         <div class="hd-logo" @click="router.push('/dashboard')">
           <span class="hd-logo-icon">⬡</span>
           <span class="hd-logo-text">GenCPT</span>
@@ -130,6 +129,7 @@ const showBackButton = computed(() => route.path !== '/dashboard');
 
       <!-- Workspace -->
       <main class="ws">
+        <button v-if="showBackButton" class="ws-back" @click="goBack">← 返回</button>
         <RouterView />
       </main>
     </div>
