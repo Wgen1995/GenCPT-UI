@@ -485,10 +485,8 @@ textarea:focus {
   color: #00FF88; border-left-color: #00FF88;
   box-shadow: inset 0 0 20px rgba(0, 255, 136, 0.05);
 }
-.sb-i.off { opacity: 0.3; cursor: default; }
 .sb-ic { width: 18px; text-align: center; font-size: 14px; font-style: normal; opacity: 1; filter: brightness(1.2); }
 .sb-il { flex: 1; }
-.sb-tag { font-size: 9px; padding: 1px 6px; border-radius: 3px; background: #1A252D; color: #8B949E; }
 .ws {
   flex: 1; overflow-y: auto;
   background: #060A10;

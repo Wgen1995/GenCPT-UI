@@ -82,7 +82,10 @@ function isActive(item: NavItem): boolean {
 }
 
 function go(item: NavItem) {
-  if (isDisabled(item)) return;
+  if (isDisabled(item)) {
+    router.push('/launch');
+    return;
+  }
   router.push(resolveTo(item));
 }
 
@@ -125,12 +128,11 @@ const showBackButton = computed(() => route.path !== '/dashboard');
             v-for="item in g.items"
             :key="item.label"
             class="sb-i"
-            :class="{ on: isActive(item), off: isDisabled(item) }"
+            :class="{ on: isActive(item) }"
             @click="go(item)"
           >
             <span class="sb-ic" :style="item.color ? { color: item.color } : {}">{{ item.icon }}</span>
             <span class="sb-il">{{ item.label }}</span>
-            <span v-if="isDisabled(item)" class="sb-tag">需 Session</span>
           </div>
         </div>
       </aside>
