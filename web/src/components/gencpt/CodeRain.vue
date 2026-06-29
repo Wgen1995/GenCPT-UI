@@ -17,8 +17,8 @@ onMounted(() => {
   if (!ctx) return;
 
   function resize() {
-    el!.width = window.innerWidth - 232;
-    el!.height = window.innerHeight - 52;
+    el!.width = el!.parentElement!.offsetWidth - 232;
+    el!.height = el!.parentElement!.offsetHeight;
   }
   resize();
   window.addEventListener('resize', resize);
@@ -71,7 +71,7 @@ onMounted(() => {
 
 <style scoped>
 .code-rain {
-  position: fixed; top: 52px; left: 232px; right: 0; bottom: 0;
+  position: absolute; top: 0; left: 232px; right: 0; bottom: 0;
   pointer-events: none; z-index: 0;
 }
 </style>

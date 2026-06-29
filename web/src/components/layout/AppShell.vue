@@ -3,6 +3,7 @@ import { computed } from 'vue';
 import { RouterView, useRouter, useRoute } from 'vue-router';
 import { useUiStore } from '../../stores/ui.js';
 import { useSessionsStore } from '../../stores/sessions.js';
+import CodeRain from '../gencpt/CodeRain.vue';
 
 const ui = useUiStore();
 const sessions = useSessionsStore();
@@ -110,6 +111,7 @@ const showBackButton = computed(() => route.path !== '/dashboard');
     </header>
 
     <div class="bd">
+      <CodeRain />
       <!-- Sidebar -->
       <aside class="sb">
         <div v-for="g in groups" :key="g.label" class="sb-g">
@@ -176,7 +178,7 @@ const showBackButton = computed(() => route.path !== '/dashboard');
 @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.25; } }
 
 /* Body */
-.bd { display: flex; flex: 1; overflow: hidden; }
+.bd { display: flex; flex: 1; overflow: hidden; position: relative; background: #0D1318; }
 
 /* Sidebar */
 .sb {
@@ -185,7 +187,7 @@ const showBackButton = computed(() => route.path !== '/dashboard');
   border-right: 1px solid #1A252D;
   overflow-y: auto; overflow-x: hidden;
   padding: 12px 0 24px;
-  position: relative;
+  position: relative; z-index: 1;
 }
 .sb::after {
   content: ''; position: absolute; right: 0; top: 0; bottom: 0; width: 2px;
@@ -225,12 +227,9 @@ const showBackButton = computed(() => route.path !== '/dashboard');
 
 /* Workspace */
 .ws {
+  position: relative; z-index: 1;
   flex: 1; overflow-y: auto;
-  background: #060A10;
-  background-image:
-    linear-gradient(rgba(0, 255, 136, 0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0, 255, 136, 0.04) 1px, transparent 1px);
-  background-size: 40px 40px;
+  background: transparent;
   padding: 28px;
 }
 .ws > * { animation: fadeUp 0.25s ease; }
