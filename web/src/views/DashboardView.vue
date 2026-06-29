@@ -108,12 +108,12 @@ onMounted(loadDashboard);
 
     <!-- 能力资产 KPI 行（始终显示） -->
     <div class="kpi-row" v-if="assets">
-      <div class="mc mc-click" @click="router.push('/tool-assets?tab=pipeline')"><div class="mc-l">子技能</div><div class="mc-v">{{ skillCount }}</div><div class="mc-s">可独立运行 →</div></div>
-      <div class="mc mc-click" @click="router.push('/tool-assets?tab=knowledge')"><div class="mc-l">合规规则</div><div class="mc-v">{{ ruleCount }}</div><div class="mc-s">3 平台 / 41 分组 →</div></div>
-      <div class="mc mc-click" @click="router.push('/tool-assets?tab=knowledge')"><div class="mc-l">攻击模式</div><div class="mc-v">{{ patternCount }}</div><div class="mc-s">7 攻击面 →</div></div>
-      <div class="mc mc-click" @click="router.push('/tool-assets?tab=knowledge')"><div class="mc-l">三库</div><div class="mc-v">{{ triLibCount }}</div><div class="mc-s">CHK/ATK/XREF →</div></div>
-      <div class="mc mc-click" @click="router.push('/tool-assets?tab=harness')"><div class="mc-l">Harness 机制</div><div class="mc-v">{{ harnessCount }}</div><div class="mc-s">AI 工程纪律 →</div></div>
-      <div class="mc mc-click" @click="router.push('/tool-assets?tab=harness')"><div class="mc-l">公共规范</div><div class="mc-v">{{ sharedSpecCount }}</div><div class="mc-s">shared 规范库 →</div></div>
+      <div class="mc mc-click mc-top-green" @click="router.push('/tool-assets?tab=pipeline')"><div class="mc-l">子技能</div><div class="mc-v">{{ skillCount }}</div><div class="mc-s">可独立运行 →</div></div>
+      <div class="mc mc-click mc-top-amber" @click="router.push('/tool-assets?tab=knowledge')"><div class="mc-l">合规规则</div><div class="mc-v">{{ ruleCount }}</div><div class="mc-s">3 平台 / 41 分组 →</div></div>
+      <div class="mc mc-click mc-top-red" @click="router.push('/tool-assets?tab=knowledge')"><div class="mc-l">攻击模式</div><div class="mc-v">{{ patternCount }}</div><div class="mc-s">7 攻击面 →</div></div>
+      <div class="mc mc-click mc-top-purple" @click="router.push('/tool-assets?tab=knowledge')"><div class="mc-l">三库</div><div class="mc-v">{{ triLibCount }}</div><div class="mc-s">CHK/ATK/XREF →</div></div>
+      <div class="mc mc-click mc-top-teal" @click="router.push('/tool-assets?tab=harness')"><div class="mc-l">Harness 机制</div><div class="mc-v">{{ harnessCount }}</div><div class="mc-s">AI 工程纪律 →</div></div>
+      <div class="mc mc-click mc-top-blue" @click="router.push('/tool-assets?tab=harness')"><div class="mc-l">公共规范</div><div class="mc-v">{{ sharedSpecCount }}</div><div class="mc-s">shared 规范库 →</div></div>
     </div>
 
     <!-- 攻击面标签行 -->
@@ -224,6 +224,12 @@ onMounted(loadDashboard);
 .kpi-row { display: grid; grid-template-columns: repeat(6, 1fr); gap: 16px; margin-bottom: 16px; }
 .kpi-row .mc-l { font-size: 13px; color: var(--t2); }
 .kpi-row .mc-s { font-size: 12px; color: var(--t3); }
+.mc-top-green  { border-top: 3px solid #00FF88; }
+.mc-top-amber  { border-top: 3px solid #D29922; }
+.mc-top-red    { border-top: 3px solid #F85149; }
+.mc-top-purple { border-top: 3px solid #A371F7; }
+.mc-top-teal   { border-top: 3px solid #2DD4BF; }
+.mc-top-blue   { border-top: 3px solid #2F81F7; }
 .subtitle { color: var(--t3); font-size: 13px; margin: 4px 0 0; }
 .quick-actions { display: flex; gap: 10px; align-items: center; }
 .link-btn { padding: 8px 16px; border: 1px solid var(--border); border-radius: 6px; color: var(--t2); cursor: pointer; font-size: 14px; text-decoration: none; }

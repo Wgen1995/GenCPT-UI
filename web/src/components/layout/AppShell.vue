@@ -13,6 +13,7 @@ interface NavItem {
   to: string;
   label: string;
   icon: string;
+  color?: string;
   needsSession?: boolean;
 }
 interface NavGroup {
@@ -22,30 +23,30 @@ interface NavGroup {
 
 const groups: NavGroup[] = [
   { label: '概况', items: [
-    { to: '/dashboard', label: '总览驾驶舱', icon: '◎' },
-    { to: '/launch', label: '启动 / 导入', icon: '▶' },
+    { to: '/dashboard', label: '总览驾驶舱', icon: '◎', color: '#00FF88' },
+    { to: '/launch', label: '启动 / 导入', icon: '▶', color: '#3FB950' },
   ]},
   { label: '检测发现', items: [
-    { to: 'quality', label: '质量门禁', icon: '✓', needsSession: true },
-    { to: 'candidate-panorama', label: '攻击候选来源全景', icon: '◈', needsSession: true },
+    { to: 'quality', label: '质量门禁', icon: '✓', color: '#3FB950', needsSession: true },
+    { to: 'candidate-panorama', label: '攻击候选来源全景', icon: '◈', color: '#D29922', needsSession: true },
   ]},
   { label: '威胁分析', items: [
-    { to: 'graph', label: '知识图谱', icon: '⬡', needsSession: true },
-    { to: 'compliance', label: '合规检测', icon: '☰', needsSession: true },
-    { to: 'tri-library', label: '三库联动', icon: '🔗', needsSession: true },
-    { to: 'attacks', label: '攻击验证', icon: '⚔', needsSession: true },
-    { to: 'chains', label: '攻击链', icon: '⛓', needsSession: true },
-    { to: 'coverage', label: '覆盖矩阵', icon: '▦', needsSession: true },
-    { to: 'poc', label: 'POC 复现', icon: '◆', needsSession: true },
+    { to: 'graph', label: '知识图谱', icon: '⬡', color: '#A371F7', needsSession: true },
+    { to: 'compliance', label: '合规检测', icon: '☰', color: '#2F81F7', needsSession: true },
+    { to: 'tri-library', label: '三库联动', icon: '🔗', color: '#D29922', needsSession: true },
+    { to: 'attacks', label: '攻击验证', icon: '⚔', color: '#F85149', needsSession: true },
+    { to: 'chains', label: '攻击链', icon: '⛓', color: '#F85149', needsSession: true },
+    { to: 'coverage', label: '覆盖矩阵', icon: '▦', color: '#2DD4BF', needsSession: true },
+    { to: 'poc', label: 'POC 复现', icon: '◆', color: '#A371F7', needsSession: true },
   ]},
   { label: '交付', items: [
-    { to: 'reports', label: '报告追溯', icon: '▤', needsSession: true },
-    { to: 'baseline', label: 'Baseline 对比', icon: '↔', needsSession: true },
+    { to: 'reports', label: '报告追溯', icon: '▤', color: '#2F81F7', needsSession: true },
+    { to: 'baseline', label: 'Baseline 对比', icon: '↔', color: '#2DD4BF', needsSession: true },
   ]},
   { label: '进化管理', items: [
-    { to: 'evolution', label: '进化控制台', icon: '⬢', needsSession: true },
-    { to: '/tool-assets', label: '工具资产全景', icon: '⬣' },
-    { to: '/settings', label: '环境设置', icon: '⚙' },
+    { to: 'evolution', label: '进化控制台', icon: '⬢', color: '#A371F7', needsSession: true },
+    { to: '/tool-assets', label: '工具资产全景', icon: '⬣', color: '#00FF88' },
+    { to: '/settings', label: '环境设置', icon: '⚙', color: '#8B949E' },
   ]},
 ];
 
@@ -127,7 +128,7 @@ const showBackButton = computed(() => route.path !== '/dashboard');
             :class="{ on: isActive(item), off: isDisabled(item) }"
             @click="go(item)"
           >
-            <span class="sb-ic">{{ item.icon }}</span>
+            <span class="sb-ic" :style="item.color ? { color: item.color } : {}">{{ item.icon }}</span>
             <span class="sb-il">{{ item.label }}</span>
             <span v-if="isDisabled(item)" class="sb-tag">需 Session</span>
           </div>
