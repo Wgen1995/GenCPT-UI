@@ -106,12 +106,15 @@ const showBackButton = computed(() => route.path !== '/dashboard');
         </span>
       </div>
       <div class="hd-r">
+        <button class="hd-btn-rain" :title="ui.codeRain ? '关闭代码雨' : '开启代码雨'" @click="ui.toggleCodeRain()">
+          {{ ui.codeRain ? '🌧' : '☁' }}
+        </button>
         <span class="hd-status"><span class="dot-live"></span> runtime ready</span>
       </div>
     </header>
 
     <div class="bd">
-      <CodeRain />
+      <CodeRain v-if="ui.codeRain" />
       <!-- Sidebar -->
       <aside class="sb">
         <div v-for="g in groups" :key="g.label" class="sb-g">
@@ -169,6 +172,12 @@ const showBackButton = computed(() => route.path !== '/dashboard');
 }
 .hd-sess .mono { font-family: 'JetBrains Mono', monospace; font-size: 11px; }
 .hd-r { display: flex; align-items: center; gap: 8px; }
+.hd-btn-rain {
+  background: none; border: 1px solid #1A252D; border-radius: 6px;
+  font-size: 14px; cursor: pointer; padding: 2px 8px;
+  color: #8B949E; transition: all 0.15s;
+}
+.hd-btn-rain:hover { color: #00FF88; border-color: rgba(0, 255, 136, 0.4); }
 .hd-status { display: flex; align-items: center; gap: 6px; font-size: 12px; color: #3FB950; }
 
 .dot-live {
