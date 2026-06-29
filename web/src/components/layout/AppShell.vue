@@ -150,9 +150,9 @@ const showBackButton = computed(() => route.path !== '/dashboard');
   height: 52px; min-height: 52px;
   display: flex; align-items: center; justify-content: space-between;
   padding: 0 24px; gap: 16px;
-  background: linear-gradient(180deg, #161B22, #0D1117);
-  border-bottom: 1px solid #2D333B;
-  box-shadow: 0 1px 0 rgba(0, 255, 136, 0.06);
+  background: linear-gradient(180deg, #0D1A1A, #0A0E14);
+  border-bottom: 1px solid #1A252D;
+  box-shadow: 0 1px 0 rgba(0, 255, 136, 0.10);
   z-index: 100;
 }
 .hd-l { display: flex; align-items: center; gap: 16px; }
@@ -187,54 +187,55 @@ const showBackButton = computed(() => route.path !== '/dashboard');
 /* Sidebar */
 .sb {
   width: 232px; min-width: 232px;
-  background: #0D1117;
-  border-right: 1px solid #1E252D;
+  background: #0A0E14;
+  border-right: 1px solid #1A252D;
   overflow-y: auto; overflow-x: hidden;
   padding: 12px 0 24px;
   position: relative;
 }
 .sb::after {
-  content: ''; position: absolute; right: 0; top: 0; bottom: 0; width: 1px;
-  background: linear-gradient(180deg, transparent, rgba(0, 255, 136, 0.08), transparent);
+  content: ''; position: absolute; right: 0; top: 0; bottom: 0; width: 2px;
+  background: linear-gradient(180deg, transparent, rgba(0, 255, 136, 0.15), transparent);
   pointer-events: none;
 }
 .sb-g { margin-bottom: 16px; }
 .sb-gl {
   padding: 10px 20px 6px;
   font-size: 10px; font-weight: 600; text-transform: uppercase;
-  letter-spacing: 1.5px; color: #4D5663;
-  border-bottom: 1px solid #161B22;
+  letter-spacing: 1.5px; color: #5A8A6A;
+  border-bottom: 1px solid #1A252D;
   margin: 0 8px 4px; padding-bottom: 6px;
 }
 .sb-i {
   display: flex; align-items: center; gap: 10px;
   padding: 8px 20px; margin: 1px 4px;
   border-radius: 6px; cursor: pointer;
-  font-size: 13px; color: #9DA7B3;
+  font-size: 13px; color: #AEB8C4;
   border-left: 2px solid transparent;
   transition: all 0.12s ease;
   position: relative;
 }
-.sb-i:hover { background: rgba(0, 255, 136, 0.04); color: #E6EDF3; border-left-color: rgba(0, 255, 136, 0.25); }
+.sb-i:hover { background: rgba(0, 255, 136, 0.08); color: #E6EDF3; border-left-color: rgba(0, 255, 136, 0.5); }
 .sb-i.on {
-  background: rgba(0, 255, 136, 0.06);
+  background: rgba(0, 255, 136, 0.12);
   color: #00FF88; border-left-color: #00FF88;
+  box-shadow: inset 0 0 20px rgba(0, 255, 136, 0.05);
 }
-.sb-i.off { opacity: 0.25; cursor: default; }
-.sb-ic { width: 18px; text-align: center; font-size: 13px; font-style: normal; opacity: 0.7; }
+.sb-i.off { opacity: 0.3; cursor: default; }
+.sb-ic { width: 18px; text-align: center; font-size: 13px; font-style: normal; opacity: 0.8; }
 .sb-il { flex: 1; }
 .sb-tag {
   font-size: 9px; padding: 1px 6px; border-radius: 3px;
-  background: #2D333B; color: #6E7681;
+  background: #1A252D; color: #8B949E;
 }
 
 /* Workspace */
 .ws {
   flex: 1; overflow-y: auto;
-  background: #0D1117;
+  background: #060A10;
   background-image:
-    linear-gradient(rgba(0, 255, 136, 0.025) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0, 255, 136, 0.025) 1px, transparent 1px);
+    linear-gradient(rgba(0, 255, 136, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 255, 136, 0.04) 1px, transparent 1px);
   background-size: 40px 40px;
   padding: 28px;
 }
