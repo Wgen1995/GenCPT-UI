@@ -7,7 +7,7 @@ import { onMounted, onBeforeUnmount, ref } from 'vue';
 
 const canvas = ref<HTMLCanvasElement | null>(null);
 let animId = 0;
-const chars = '01アイウエオカキクケコサシスセソタチツテト'.split('');
+const chars = '01'.split('');
 const fontSize = 14;
 
 onMounted(() => {

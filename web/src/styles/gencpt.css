@@ -449,7 +449,7 @@ textarea:focus {
 .hd-status { display: flex; align-items: center; gap: 6px; font-size: 12px; color: #3FB950; }
 .dot-live { width: 7px; height: 7px; border-radius: 50%; background: #00FF88; animation: pulse 1.5s infinite; }
 @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.25; } }
-.bd { display: flex; flex: 1; overflow: hidden; }
+.bd { display: flex; flex: 1; overflow: hidden; background: #0D1318; }
 .sb {
   width: 232px; min-width: 232px;
   background: #111820;
@@ -489,8 +489,9 @@ textarea:focus {
 .sb-ic { width: 18px; text-align: center; font-size: 14px; font-style: normal; opacity: 1; filter: brightness(1.2); }
 .sb-il { flex: 1; }
 .ws {
+  position: relative; z-index: 1;
   flex: 1; overflow-y: auto;
-  background: #0D1318;
+  background: transparent;
   padding: 28px;
 }
 .ws > * { animation: fadeUp 0.25s ease; }
