@@ -100,7 +100,7 @@ onMounted(loadDashboard);
       </div>
       <div class="quick-actions">
         <button class="primary" @click="launch">▶ 启动新评估</button>
-        <RouterLink class="link-btn" to="/launch">导入 Session</RouterLink>
+        <RouterLink class="link-btn" to="/launch?tab=import">导入 Session</RouterLink>
       </div>
     </div>
 

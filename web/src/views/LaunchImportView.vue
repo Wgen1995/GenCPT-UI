@@ -1,19 +1,21 @@
 <script setup lang="ts">
 import { onMounted, reactive, ref } from 'vue';
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
 import { getJson, postJson } from '../api/client.js';
 import { useUiStore } from '../stores/ui.js';
 import PanelCard from '../components/common/PanelCard.vue';
 import StatusBadge from '../components/common/StatusBadge.vue';
 
 const router = useRouter();
+const route = useRoute();
 const ui = useUiStore();
 
 type Mode = 'fast' | 'full' | 'custom';
 type Approval = 'standard' | 'express' | 'manual';
 type ScopeItem = 'k8s' | 'docker' | 'containerd' | 'all';
 
-const tab = ref<'launch' | 'import'>('launch');
+const initialTab = (route.query.tab === 'import') ? 'import' : 'launch';
+const tab = ref<'launch' | 'import'>(initialTab);
 
 const launchForm = reactive({
   server: '',
