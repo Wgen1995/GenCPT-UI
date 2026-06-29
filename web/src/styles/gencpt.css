@@ -370,8 +370,9 @@ textarea:focus {
   font-size: 36px;
   font-weight: 700;
   line-height: 1;
-  font-family: 'JetBrains Mono', 'SF Mono', monospace;
-  color: var(--text-primary);
+  font-family: 'JetBrains Mono', monospace;
+  color: #00FF88;
+  text-shadow: 0 0 12px rgba(0, 255, 136, 0.2);
 }
 .mc-s {
   font-size: 11px;

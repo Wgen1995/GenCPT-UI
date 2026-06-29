@@ -12,11 +12,11 @@
   --bd: #2D333B;
   --bdl: #3D4449;
   /* text — high contrast */
-  --text-primary: #E6EDF3;
-  --text-secondary: #9DA7B3;
-  --text-tertiary: #6E7681;
-  --t1: #E6EDF3;
-  --t2: #9DA7B3;
+  --text-primary: #F0F6FC;
+  --text-secondary: #B0BEC5;
+  --text-tertiary: #90A4AE;
+  --t1: #F0F6FC;
+  --t2: #B0BEC5;
   --t3: #8B949E;
   /* 5 colour accent system */
   --accent-blue: #2F81F7;

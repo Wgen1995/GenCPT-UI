@@ -202,7 +202,7 @@ const showBackButton = computed(() => route.path !== '/dashboard');
 .sb-gl {
   padding: 10px 20px 6px;
   font-size: 10px; font-weight: 600; text-transform: uppercase;
-  letter-spacing: 1.5px; color: #5A8A6A;
+  letter-spacing: 1.5px; color: #00FF88;
   border-bottom: 1px solid #1A252D;
   margin: 0 8px 4px; padding-bottom: 6px;
 }
@@ -210,7 +210,7 @@ const showBackButton = computed(() => route.path !== '/dashboard');
   display: flex; align-items: center; gap: 10px;
   padding: 8px 20px; margin: 1px 4px;
   border-radius: 6px; cursor: pointer;
-  font-size: 13px; color: #AEB8C4;
+  font-size: 13px; color: #C8D6E5;
   border-left: 2px solid transparent;
   transition: all 0.12s ease;
   position: relative;
@@ -222,7 +222,7 @@ const showBackButton = computed(() => route.path !== '/dashboard');
   box-shadow: inset 0 0 20px rgba(0, 255, 136, 0.05);
 }
 .sb-i.off { opacity: 0.3; cursor: default; }
-.sb-ic { width: 18px; text-align: center; font-size: 13px; font-style: normal; opacity: 0.8; }
+.sb-ic { width: 18px; text-align: center; font-size: 14px; font-style: normal; opacity: 1; filter: brightness(1.2); }
 .sb-il { flex: 1; }
 .sb-tag {
   font-size: 9px; padding: 1px 6px; border-radius: 3px;
