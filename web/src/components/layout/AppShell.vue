@@ -64,15 +64,10 @@ const currentSessionId = computed(() => {
 function resolveTo(item: NavItem): string {
   if (item.needsSession) {
     const id = currentSessionId.value;
-    if (!id) return '';
+    if (!id) return `/sessions/_/${item.to}`;
     return `/sessions/${id}/${item.to}`;
   }
   return item.to;
-}
-
-function isDisabled(item: NavItem): boolean {
-  if (item.needsSession) return !currentSessionId.value;
-  return false;
 }
 
 function isActive(item: NavItem): boolean {
@@ -82,10 +77,6 @@ function isActive(item: NavItem): boolean {
 }
 
 function go(item: NavItem) {
-  if (isDisabled(item)) {
-    router.push('/launch');
-    return;
-  }
   router.push(resolveTo(item));
 }
 
