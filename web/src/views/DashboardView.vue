@@ -109,11 +109,11 @@ onMounted(loadDashboard);
     <!-- 能力资产 KPI 行（始终显示） -->
     <div class="kpi-row" v-if="assets">
       <div class="mc mc-click" @click="router.push('/tool-assets?tab=pipeline')"><div class="mc-l">子技能</div><div class="mc-v">{{ skillCount }}</div><div class="mc-s">可独立运行 →</div></div>
-      <div class="mc mc-click" @click="router.push('/tool-assets?tab=knowledge')"><div class="mc-l">合规规则</div><div class="mc-v" style="color:var(--warning)">{{ ruleCount }}</div><div class="mc-s">3 平台 / 41 分组 →</div></div>
-      <div class="mc mc-click" @click="router.push('/tool-assets?tab=knowledge')"><div class="mc-l">攻击模式</div><div class="mc-v" style="color:var(--danger)">{{ patternCount }}</div><div class="mc-s">7 攻击面 →</div></div>
-      <div class="mc mc-click" @click="router.push('/tool-assets?tab=knowledge')"><div class="mc-l">三库</div><div class="mc-v" style="color:var(--info)">{{ triLibCount }}</div><div class="mc-s">CHK/ATK/XREF →</div></div>
-      <div class="mc mc-click" @click="router.push('/tool-assets?tab=harness')"><div class="mc-l">Harness 机制</div><div class="mc-v" style="color:var(--teal)">{{ harnessCount }}</div><div class="mc-s">AI 工程纪律 →</div></div>
-      <div class="mc mc-click" @click="router.push('/tool-assets?tab=harness')"><div class="mc-l">公共规范</div><div class="mc-v" style="color:var(--accent-blue)">{{ sharedSpecCount }}</div><div class="mc-s">shared 规范库 →</div></div>
+      <div class="mc mc-click" @click="router.push('/tool-assets?tab=knowledge')"><div class="mc-l">合规规则</div><div class="mc-v">{{ ruleCount }}</div><div class="mc-s">3 平台 / 41 分组 →</div></div>
+      <div class="mc mc-click" @click="router.push('/tool-assets?tab=knowledge')"><div class="mc-l">攻击模式</div><div class="mc-v">{{ patternCount }}</div><div class="mc-s">7 攻击面 →</div></div>
+      <div class="mc mc-click" @click="router.push('/tool-assets?tab=knowledge')"><div class="mc-l">三库</div><div class="mc-v">{{ triLibCount }}</div><div class="mc-s">CHK/ATK/XREF →</div></div>
+      <div class="mc mc-click" @click="router.push('/tool-assets?tab=harness')"><div class="mc-l">Harness 机制</div><div class="mc-v">{{ harnessCount }}</div><div class="mc-s">AI 工程纪律 →</div></div>
+      <div class="mc mc-click" @click="router.push('/tool-assets?tab=harness')"><div class="mc-l">公共规范</div><div class="mc-v">{{ sharedSpecCount }}</div><div class="mc-s">shared 规范库 →</div></div>
     </div>
 
     <!-- 攻击面标签行 -->
