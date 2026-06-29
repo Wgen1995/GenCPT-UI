@@ -29,9 +29,19 @@ const triLibCount = computed(() => assets.value?.hypotheses.files.length ?? 0);
 const sharedSpecCount = computed(
   () => assets.value?.sharedSpecs.filter((s) => s.exists).length ?? 0
 );
-const attackSurfaceCount = computed(
-  () => new Set(assets.value?.attackPatterns.map((p) => p.attackSurface) ?? []).size
-);
+const attackSurfaces = computed(() => {
+  if (!assets.value) return [];
+  const map = new Map<string, { name: string; count: number }>();
+  for (const p of assets.value.attackPatterns) {
+    const id = p.attackSurface;
+    if (!map.has(id)) {
+      const names: Record<string,string> = {'AS-1':'逃逸','AS-2':'认证授权','AS-3':'网络','AS-4':'数据泄露','AS-5':'拒绝服务','AS-6':'供应链','AS-7':'持久化'};
+      map.set(id, { name: names[id] ?? id, count: 0 });
+    }
+    map.get(id)!.count++;
+  }
+  return [...map.entries()].map(([id, v]) => ({ id, ...v }));
+});
 
 const summary = computed(
   () => (currentSession.value?.summary ?? {}) as Record<string, unknown>
@@ -111,7 +121,14 @@ onMounted(loadDashboard);
               <StatusBadge :state="assets.entrySkill.exists ? 'pass' : 'fail'"
                 :label="assets.entrySkill.exists ? '存在' : '缺失'" />
             </dd>
-            <dt>攻击面</dt><dd>{{ attackSurfaceCount }}</dd>
+            <dt>攻击面</dt>
+          <dd>
+            <div class="as-list">
+              <span v-for="as in attackSurfaces" :key="as.id" class="as-tag" @click="router.push('/tool-assets?tab=security')">
+                {{ as.id }} {{ as.name }} {{ as.count }}
+              </span>
+            </div>
+          </dd>
             <dt>tools 工具库</dt>
             <dd>
               <StatusBadge :state="assets.tools.indexExists ? 'pass' : 'warn'"
@@ -241,4 +258,11 @@ onMounted(loadDashboard);
   background: var(--bg2); border: 1px solid var(--bd); border-radius: 8px;
 }
 .gi { flex: 1; max-width: 400px; }
+.as-list { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 2px; }
+.as-tag {
+  cursor: pointer; padding: 2px 10px; border-radius: 4px;
+  font-size: 12px; background: var(--bg3); border: 1px solid var(--bd);
+  color: var(--t2); font-family: 'JetBrains Mono', monospace; white-space: nowrap;
+}
+.as-tag:hover { border-color: var(--ac); color: var(--ac); }
 </style>
