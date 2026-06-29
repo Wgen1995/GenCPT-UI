@@ -142,7 +142,7 @@ const showBackButton = computed(() => route.path !== '/dashboard');
   </div>
 </template>
 
-<style scoped>
+<style>
 .shell { display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
 
 /* Header */
