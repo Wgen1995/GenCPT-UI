@@ -94,9 +94,14 @@ onMounted(loadDashboard);
 <template>
   <div class="view dashboard-view">
     <div class="view-head">
-      <h1>总览驾驶舱</h1>
-      <span v-if="loading" class="muted">刷新中…</span>
-      <button v-else class="primary" @click="loadDashboard()">⟳ 刷新</button>
+      <div>
+        <h1>总览驾驶舱</h1>
+        <p class="subtitle">GenCPT 容器渗透测试平台 · 能力资产与安全态势</p>
+      </div>
+      <div class="quick-actions">
+        <button class="primary" @click="launch">▶ 启动新评估</button>
+        <RouterLink class="link-btn" to="/launch">导入 Session</RouterLink>
+      </div>
     </div>
 
     <p v-if="error" class="err">{{ error }}</p>
@@ -217,6 +222,12 @@ onMounted(loadDashboard);
 
 <style scoped>
 .kpi-row { display: grid; grid-template-columns: repeat(6, 1fr); gap: 16px; margin-bottom: 16px; }
+.kpi-row .mc-l { font-size: 13px; color: var(--t2); }
+.kpi-row .mc-s { font-size: 12px; color: var(--t3); }
+.subtitle { color: var(--t3); font-size: 13px; margin: 4px 0 0; }
+.quick-actions { display: flex; gap: 10px; align-items: center; }
+.link-btn { padding: 8px 16px; border: 1px solid var(--border); border-radius: 6px; color: var(--t2); cursor: pointer; font-size: 14px; text-decoration: none; }
+.link-btn:hover { border-color: var(--accent-blue); color: var(--accent-blue); }
 .mc-click { cursor: pointer; transition: transform 0.15s; }
 .mc-click:hover { transform: translateY(-2px); }
 .row { display: flex; gap: 12px; align-items: center; }
