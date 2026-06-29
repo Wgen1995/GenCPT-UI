@@ -93,7 +93,7 @@ onMounted(loadDashboard);
 </script>
 
 <template>
-  <div class="view dashboard-view" style="position:relative">
+  <div class="view dashboard-view" style="position:relative;z-index:1">
     <CodeRain />
     <div class="view-head">
       <div>

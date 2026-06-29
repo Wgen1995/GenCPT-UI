@@ -12,9 +12,11 @@ const fontSize = 14;
 
 onMounted(() => {
   const el = canvas.value; if (!el) return;
-  const ctx = el!.getContext('2d')!;
+  let ctx: CanvasRenderingContext2D | null;
+  try { ctx = el.getContext('2d'); } catch { return; }
+  if (!ctx) return;
 
-  function resize() { el!.width = el!.parentElement!.clientWidth; el!.height = el!.parentElement!.clientHeight; }
+  function resize() { el!.width = window.innerWidth - 232; el!.height = window.innerHeight - 52; }
   resize();
   window.addEventListener('resize', resize);
 
@@ -23,21 +25,22 @@ onMounted(() => {
   init();
 
   function draw() {
-    ctx.fillStyle = 'rgba(13, 19, 24, 0.1)';
-    ctx.fillRect(0, 0, el!.width, el!.height);
-    ctx.fillStyle = '#00FF88';
-    ctx.font = `bold ${fontSize}px JetBrains Mono`;
+    const c = ctx!;
+    c.fillStyle = 'rgba(13, 19, 24, 0.1)';
+    c.fillRect(0, 0, el!.width, el!.height);
+    c.fillStyle = '#00FF88';
+    c.font = `bold ${fontSize}px JetBrains Mono`;
 
     for (let i = 0; i < drops.length; i++) {
       const text = chars[Math.floor(Math.random() * chars.length)];
       const x = i * fontSize;
       const y = drops[i] * fontSize;
-      ctx.globalAlpha = 0.15;
-      ctx.fillText(text, x, y);
+      c.globalAlpha = 0.15;
+      c.fillText(text, x, y);
       if (y > el!.height && Math.random() > 0.98) drops[i] = 0;
       drops[i]++;
     }
-    ctx.globalAlpha = 1;
+    c.globalAlpha = 1;
     animId = requestAnimationFrame(draw);
   }
   draw();
@@ -48,7 +51,6 @@ onMounted(() => {
 
 <style scoped>
 .code-rain {
-  position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-  pointer-events: none; z-index: -1;
-}
-</style>
+  position: fixed; top: 52px; left: 232px; right: 0; bottom: 0;
+  pointer-events: none; z-index: 0;
+}</style>
