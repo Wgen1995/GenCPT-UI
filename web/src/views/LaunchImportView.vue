@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { reactive, ref } from 'vue';
+import { onMounted, reactive, ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { postJson } from '../api/client.js';
+import { getJson, postJson } from '../api/client.js';
 import { useUiStore } from '../stores/ui.js';
 import PanelCard from '../components/common/PanelCard.vue';
 import StatusBadge from '../components/common/StatusBadge.vue';
@@ -118,6 +118,13 @@ async function submitImport(): Promise<void> {
     importing.value = false;
   }
 }
+
+const sessions = ref<Array<{id:string;server?:string;status:string;mode?:string;createdAt?:string}>>([]);
+async function loadSessions() {
+  try { sessions.value = await getJson('/api/sessions'); } catch {}
+}
+function goSession(id: string) { router.push(`/sessions/${id}/execution`); }
+onMounted(loadSessions);
 </script>
 
 <template>
@@ -276,6 +283,17 @@ async function submitImport(): Promise<void> {
         </div>
       </form>
     </PanelCard>
+
+    <PanelCard v-if="sessions.length > 0" title="历史 Session" flat style="margin-top:20px">
+      <ul class="link-list">
+        <li v-for="s in sessions" :key="s.id">
+          <a href="javascript:void(0)" class="link" @click="goSession(s.id)">
+            <strong>{{ s.server ?? s.id.slice(0,8) }}</strong>
+            <span class="muted"> · {{ s.status }} · {{ s.mode ?? '-' }} · {{ s.createdAt }}</span>
+          </a>
+        </li>
+      </ul>
+    </PanelCard>
   </div>
 </template>
 
@@ -338,4 +356,7 @@ async function submitImport(): Promise<void> {
 .field.check { flex-direction: row; align-items: center; gap: 8px; }
 .field.check input[type="checkbox"] { width: auto; }
 .field.check span { font-size: 12px; color: var(--t2); }
+.link-list { list-style: none; padding: 0; margin: 0; max-height: 300px; overflow-y: auto; }
+.link-list li { padding: 6px 0; border-bottom: 1px solid var(--bd); }
+.link-list li:last-child { border-bottom: none; }
 </style>
