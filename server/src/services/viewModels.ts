@@ -23,14 +23,15 @@ export type SessionSummary = {
 export type DashboardViewModel = {
   assets: AssetIndex;
   sessions: ReturnType<typeof listSessions>;
-  currentSession: ReturnType<typeof getSession>;
+  currentSession: ReturnType<typeof getSession> | null;
 };
 
 export type SessionViewModel = {
-  session: NonNullable<ReturnType<typeof getSession>>;
+  session: { id: string; status: string; [k: string]: unknown };
   events: ReturnType<typeof listEvents>;
   artifacts: ReturnType<typeof listArtifacts>;
   summary: SessionSummary | null;
+  noData?: boolean;
 };
 
 export function getDashboardViewModel(
@@ -41,8 +42,10 @@ export function getDashboardViewModel(
   const assets = scanGenCptAssets(gencptHome);
   const sessions = listSessions(db);
   let currentSession: ReturnType<typeof getSession> = null;
-  if (sessionId) {
+  if (sessionId && sessionId !== '_') {
     currentSession = getSession(db, sessionId);
+  } else if (sessionId === '_') {
+    currentSession = null;
   } else if (sessions.length > 0) {
     currentSession = sessions[0];
   }
@@ -53,6 +56,14 @@ export function getSessionViewModel(
   db: Database.Database,
   sessionId: string
 ): SessionViewModel | null {
+  if (sessionId === '_') {
+    return {
+      session: { id: '_', status: 'pending' } as any,
+      events: [],
+      artifacts: [],
+      summary: null
+    };
+  }
   const session = getSession(db, sessionId);
   if (!session) return null;
   const events = listEvents(db, sessionId);

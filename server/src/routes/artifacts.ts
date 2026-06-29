@@ -9,12 +9,14 @@ export function createArtifactsRoute(db: Database.Database): Hono {
 
   route.get('/sessions/:id/artifacts', (c) => {
     const sessionId = c.req.param('id');
+    if (sessionId === '_') return c.json([]);
     if (!getSession(db, sessionId)) return c.json({ error: 'session not found' }, 404);
     return c.json(listArtifacts(db, sessionId));
   });
 
   route.get('/sessions/:id/artifacts/content', (c) => {
     const sessionId = c.req.param('id');
+    if (sessionId === '_') return c.json({ error: 'no session' }, 404);
     const relativePath = c.req.query('path');
     if (!relativePath) return c.json({ error: 'path (relative) required' }, 400);
 
