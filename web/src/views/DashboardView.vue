@@ -111,30 +111,24 @@ onMounted(loadDashboard);
       <div class="mc mc-click" @click="router.push('/tool-assets?tab=harness')"><div class="mc-l">公共规范</div><div class="mc-v" style="color:var(--accent-blue)">{{ sharedSpecCount }}</div><div class="mc-s">shared 规范库 →</div></div>
     </div>
 
-    <!-- 能力资产详情（始终显示） -->
-    <div class="grid-2" v-if="assets" style="margin-top:20px">
+    <!-- 攻击面标签行 -->
+    <div class="as-row" v-if="assets">
+      <span class="as-label">攻击面覆盖：</span>
+      <span v-for="as in attackSurfaces" :key="as.id" class="as-tag" @click="router.push('/tool-assets?tab=security')">
+        {{ as.id }} {{ as.name }} {{ as.count }}
+      </span>
+    </div>
+
+    <!-- 能力资产详情 -->
+    <div class="grid-2" v-if="assets">
       <div class="mc-click" @click="router.push('/tool-assets?tab=security')">
         <PanelCard title="安全测试能力资产" accent>
-          <dl class="kv">
-            <dt>入口 SKILL</dt>
-            <dd>
-              <StatusBadge :state="assets.entrySkill.exists ? 'pass' : 'fail'"
-                :label="assets.entrySkill.exists ? '存在' : '缺失'" />
-            </dd>
-            <dt>攻击面</dt>
-          <dd>
-            <div class="as-list">
-              <span v-for="as in attackSurfaces" :key="as.id" class="as-tag" @click="router.push('/tool-assets?tab=security')">
-                {{ as.id }} {{ as.name }} {{ as.count }}
-              </span>
-            </div>
-          </dd>
-            <dt>tools 工具库</dt>
-            <dd>
-              <StatusBadge :state="assets.tools.indexExists ? 'pass' : 'warn'"
-                :label="assets.tools.indexExists ? '存在' : '缺失'" />
-            </dd>
-          </dl>
+          <div class="stats-grid">
+            <div class="stat"><span class="stat-v">{{ ruleCount }}</span><span class="stat-l">合规规则</span></div>
+            <div class="stat"><span class="stat-v">{{ patternCount }}</span><span class="stat-l">攻击模式</span></div>
+            <div class="stat"><span class="stat-v">{{ triLibCount }}</span><span class="stat-l">三库</span></div>
+            <div class="stat"><span class="stat-v">{{ sharedSpecCount }}</span><span class="stat-l">公共规范</span></div>
+          </div>
           <template #footer>
             <span class="link">查看工具资产全景 →</span>
           </template>
@@ -143,14 +137,14 @@ onMounted(loadDashboard);
 
       <div class="mc-click" @click="router.push('/tool-assets?tab=harness')">
         <PanelCard title="AI Harness 工程资产">
-          <dl class="kv">
-            <dt>写盘优先</dt><dd><StatusBadge state="pass" label="已就绪" /></dd>
-            <dt>反幻觉六条</dt><dd><StatusBadge state="pass" label="已就绪" /></dd>
-            <dt>QA 三层</dt><dd><StatusBadge state="pass" label="已就绪" /></dd>
-            <dt>审批门控</dt><dd><StatusBadge state="pass" label="已就绪" /></dd>
-          </dl>
+          <div class="harness-grid">
+            <div class="h-item" v-for="m in assets.harnessMechanisms.slice(0,8)" :key="m.id">
+              <span class="h-name">{{ m.name }}</span>
+              <span class="h-cat">{{ m.category }}</span>
+            </div>
+          </div>
           <template #footer>
-            <span class="muted">扫描时间: {{ assets.scannedAt }}</span>
+            <span class="link">查看全部 {{ assets.harnessMechanisms.length }} 项机制 →</span>
           </template>
         </PanelCard>
       </div>
@@ -222,47 +216,30 @@ onMounted(loadDashboard);
 </template>
 
 <style scoped>
-.kpi-row {
-  display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  gap: 16px;
-  margin-bottom: 16px;
-}
-.mc-click { cursor: pointer; transition: transform 0.15s, border-color 0.15s; }
+.kpi-row { display: grid; grid-template-columns: repeat(6, 1fr); gap: 16px; margin-bottom: 16px; }
+.mc-click { cursor: pointer; transition: transform 0.15s; }
 .mc-click:hover { transform: translateY(-2px); }
 .row { display: flex; gap: 12px; align-items: center; }
-.risk-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
-}
-.risk {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 12px;
-  border: 1px solid var(--bd);
-  border-radius: 8px;
-  background: var(--bg1);
-}
+.risk-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+.risk { display: flex; align-items: center; gap: 8px; padding: 12px; border: 1px solid var(--bd); border-radius: 8px; background: var(--bg1); }
 .risk .big { font-size: 24px; font-weight: 700; font-family: 'JetBrains Mono', monospace; }
 .alarm { color: var(--rd); }
-.verdict {
-  font-weight: 700;
-  font-size: 16px;
-  color: var(--ac);
-}
-.session-selector {
-  display: flex; gap: 12px; align-items: center;
-  margin-bottom: 16px; padding: 12px;
-  background: var(--bg2); border: 1px solid var(--bd); border-radius: 8px;
-}
+.verdict { font-weight: 700; font-size: 16px; color: var(--ac); }
+.session-selector { display: flex; gap: 12px; align-items: center; margin-bottom: 16px; padding: 12px; background: var(--bg2); border: 1px solid var(--bd); border-radius: 8px; }
 .gi { flex: 1; max-width: 400px; }
-.as-list { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 2px; }
-.as-tag {
-  cursor: pointer; padding: 2px 10px; border-radius: 4px;
-  font-size: 12px; background: var(--bg3); border: 1px solid var(--bd);
-  color: var(--t2); font-family: 'JetBrains Mono', monospace; white-space: nowrap;
-}
+
+.as-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; padding: 12px; background: var(--bg2); border: 1px solid var(--bd); border-radius: 8px; }
+.as-label { font-size: 13px; font-weight: 600; color: var(--t2); }
+.as-tag { cursor: pointer; padding: 3px 10px; border-radius: 4px; font-size: 12px; background: var(--bg3); border: 1px solid var(--bd); color: var(--t2); font-family: 'JetBrains Mono', monospace; white-space: nowrap; }
 .as-tag:hover { border-color: var(--ac); color: var(--ac); }
+
+.stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.stat { text-align: center; padding: 8px; background: var(--bg1); border-radius: 6px; }
+.stat-v { display: block; font-size: 22px; font-weight: 700; font-family: 'JetBrains Mono', monospace; color: var(--ac); }
+.stat-l { display: block; font-size: 11px; color: var(--t2); margin-top: 4px; }
+
+.harness-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; max-height: 240px; overflow-y: auto; }
+.h-item { display: flex; justify-content: space-between; align-items: center; padding: 6px 10px; background: var(--bg1); border-radius: 4px; font-size: 12px; }
+.h-name { color: var(--t1); }
+.h-cat { font-size: 10px; color: var(--t3); padding: 1px 6px; background: var(--bg3); border-radius: 3px; }
 </style>
