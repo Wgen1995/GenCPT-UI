@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue';
+import { useRoute } from 'vue-router';
 import { getJson } from '../api/client.js';
 import type {
   AssetIndex,
@@ -11,12 +12,15 @@ import PanelCard from '../components/common/PanelCard.vue';
 import StatusBadge from '../components/common/StatusBadge.vue';
 import EmptyState from '../components/common/EmptyState.vue';
 
+const route = useRoute();
 const loading = ref(true);
 const error = ref<string | null>(null);
 const assets = ref<AssetIndex | null>(null);
 
 type Tab = 'pipeline' | 'knowledge' | 'harness' | 'evolution';
-const tab = ref<Tab>('pipeline');
+const queryTab = route.query.tab as string;
+const initialTab: Tab = (['pipeline','knowledge','harness','evolution'].includes(queryTab) ? queryTab : 'pipeline') as Tab;
+const tab = ref<Tab>(initialTab);
 
 const tabs: Array<{ id: Tab; label: string }> = [
   { id: 'pipeline', label: 'Skill Pipeline' },

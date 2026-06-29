@@ -27,7 +27,8 @@ const launchForm = reactive({
   model: '',
   thinking: false,
   variant: '' as '' | 'high' | 'max' | 'minimal',
-  agent: ''
+  agent: '',
+  command: 'opencode'
 });
 const showAdvanced = ref(false);
 const launching = ref(false);
@@ -82,7 +83,8 @@ async function submitLaunch(): Promise<void> {
       ...(launchForm.model.trim() ? { model: launchForm.model.trim() } : {}),
       ...(launchForm.thinking ? { thinking: true } : {}),
       ...(launchForm.variant ? { variant: launchForm.variant } : {}),
-      ...(launchForm.agent.trim() ? { agent: launchForm.agent.trim() } : {})
+      ...(launchForm.agent.trim() ? { agent: launchForm.agent.trim() } : {}),
+      command: launchForm.command.trim() || 'opencode'
     };
     const res = await postJson<{ sessionId: string; status: string; streamUrl?: string }>(
       '/api/sessions/run',
@@ -247,6 +249,14 @@ onMounted(loadSessions);
               <input
                 v-model="launchForm.agent"
                 placeholder="指定 opencode agent 名，留空用默认"
+                :disabled="launching"
+              />
+            </label>
+            <label class="field">
+              <span class="lb">opencode 命令</span>
+              <input
+                v-model="launchForm.command"
+                placeholder="opencode，如使用 nga run 则填 nga"
                 :disabled="launching"
               />
             </label>

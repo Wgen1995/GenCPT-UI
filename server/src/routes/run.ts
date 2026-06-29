@@ -13,7 +13,8 @@ const RunSchema = z.object({
   model: z.string().optional(),
   thinking: z.boolean().optional(),
   variant: z.string().optional(),
-  agent: z.string().optional()
+  agent: z.string().optional(),
+  command: z.string().optional()
 });
 
 export type RunRouteConfig = {
@@ -51,7 +52,7 @@ export function createRunRoute(db: Database.Database, runConfig: RunRouteConfig)
       variant: parsed.data.variant,
       agent: parsed.data.agent,
       gencptPath: runConfig.gencptPath,
-      opencodeCommand: runConfig.opencodeCommand,
+      opencodeCommand: parsed.data.command || runConfig.opencodeCommand,
       sessionRoot: runConfig.sessionRoot,
       artifactRoot: runConfig.artifactRoot
     };

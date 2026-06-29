@@ -215,7 +215,7 @@ const showBackButton = computed(() => route.path !== '/dashboard');
   transition: all 0.12s ease;
   position: relative;
 }
-.sb-i:hover { background: #161B22; color: #E6EDF3; border-left-color: #3D4449; }
+.sb-i:hover { background: rgba(0, 255, 136, 0.04); color: #E6EDF3; border-left-color: rgba(0, 255, 136, 0.25); }
 .sb-i.on {
   background: rgba(0, 255, 136, 0.06);
   color: #00FF88; border-left-color: #00FF88;
@@ -233,8 +233,8 @@ const showBackButton = computed(() => route.path !== '/dashboard');
   flex: 1; overflow-y: auto;
   background: #0D1117;
   background-image:
-    linear-gradient(rgba(30, 45, 64, 0.15) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(30, 45, 64, 0.15) 1px, transparent 1px);
+    linear-gradient(rgba(0, 255, 136, 0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 255, 136, 0.025) 1px, transparent 1px);
   background-size: 40px 40px;
   padding: 28px;
 }

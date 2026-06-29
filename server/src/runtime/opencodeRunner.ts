@@ -32,7 +32,7 @@ function tryExtractSessionId(line: string, cb?: (id: string) => void): void {
   } catch {}
 }
 
-export function runOpencode(input: RunOpencodeInput): Promise<RunOpencodeResult> {
+export function runOpencode(input: RunOpencodeInput): { promise: Promise<RunOpencodeResult>; kill: () => void } {
   // opencode requires a TTY to output to stdout. We wrap with `script` to create a PTY.
   const opencodeArgs = ['run', '--format', 'json'];
   if (input.model) opencodeArgs.push('-m', input.model);
@@ -52,7 +52,7 @@ export function runOpencode(input: RunOpencodeInput): Promise<RunOpencodeResult>
   let settled = false;
   let sessionIdFound = false;
 
-  const promise = new Promise<RunOpencodeResult>((resolve, reject) => {
+  const p = new Promise<RunOpencodeResult>((resolve, reject) => {
     child.stdout?.on('data', (chunk: Buffer) => {
       const text = chunk.toString('utf8');
       stdout += text;
@@ -79,7 +79,7 @@ export function runOpencode(input: RunOpencodeInput): Promise<RunOpencodeResult>
     });
   });
 
-  return { promise, kill: () => { child.kill(); } };
+  return { promise: p, kill: () => { child.kill(); } };
 }
 
 export function buildGenCptPrompt(params: {

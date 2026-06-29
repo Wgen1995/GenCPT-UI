@@ -51,14 +51,14 @@ button:hover {
   background: var(--bg-hover);
 }
 button.primary {
-  background: rgba(47, 129, 247, 0.12);
-  color: var(--accent-blue);
-  border-color: rgba(47, 129, 247, 0.45);
+  background: rgba(63, 185, 80, 0.12);
+  color: var(--accent-green);
+  border-color: rgba(63, 185, 80, 0.45);
   font-weight: 600;
 }
 button.primary:hover {
-  background: rgba(47, 129, 247, 0.22);
-  border-color: var(--accent-blue);
+  background: rgba(63, 185, 80, 0.22);
+  border-color: var(--accent-green);
 }
 button.danger {
   color: var(--danger);
@@ -87,9 +87,9 @@ textarea::placeholder { color: var(--text-tertiary); }
 input:focus,
 select:focus,
 textarea:focus {
-  border-color: var(--accent-blue);
+  border-color: var(--accent-green);
   outline: none;
-  box-shadow: 0 0 0 3px rgba(47, 129, 247, 0.15);
+  box-shadow: 0 0 0 3px rgba(63, 185, 80, 0.15);
 }
 
 /* ---------- App shell ---------- */
@@ -232,7 +232,8 @@ textarea:focus {
   transition: border-color 0.2s;
 }
 .panel:hover {
-  border-color: var(--border-strong);
+  border-color: rgba(63, 185, 80, 0.35);
+  box-shadow: 0 0 12px rgba(63, 185, 80, 0.06);
 }
 .panel-title {
   font-size: 14px;
@@ -355,8 +356,9 @@ textarea:focus {
   transition: border-color 0.2s, transform 0.2s;
 }
 .mc:hover {
-  border-color: var(--border-strong);
+  border-color: rgba(63, 185, 80, 0.4);
   transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(63, 185, 80, 0.08);
 }
 .mc-l {
   font-size: 12px;
