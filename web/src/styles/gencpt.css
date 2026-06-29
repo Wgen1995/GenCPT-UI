@@ -513,3 +513,33 @@ textarea:focus {
   animation: matrixScan 8s linear infinite;
 }
 @keyframes matrixScan { from { transform: translateY(-100%); } to { transform: translateY(100%); } }
+
+/* Terminal cursor blink */
+.hd-logo-text::after {
+  content: ' ▌';
+  animation: blink 1s step-end infinite;
+  color: #00FF88;
+}
+@keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+
+/* Sidebar data flow lines between groups */
+.sb-g { position: relative; }
+.sb-g::before {
+  content: '';
+  display: block;
+  height: 1px;
+  margin: 0 20px 4px;
+  background: linear-gradient(90deg, transparent, rgba(0, 255, 136, 0.2), transparent);
+}
+.sb-g:first-child::before { display: none; }
+
+/* Title bottom glow bar */
+.view-head h1 {
+  padding-bottom: 6px;
+  border-bottom: 2px solid rgba(0, 255, 136, 0.2);
+}
+
+/* Green pulse glow on active cards */
+.mc-click:hover .mc-v {
+  text-shadow: 0 0 20px rgba(0, 255, 136, 0.5), 0 0 40px rgba(0, 255, 136, 0.3);
+}
